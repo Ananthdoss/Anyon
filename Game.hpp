@@ -11,6 +11,6 @@ public:
     ~Game();
     
     void Initiaize() final;
-    void Free() final;
+    void Finalize() final;
     void Update(const double delta) final;
 };

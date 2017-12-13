@@ -17,7 +17,7 @@ void Game::Initiaize()
 
 }
 
-void Game::Free()
+void Game::Finalize()
 {
 
 }

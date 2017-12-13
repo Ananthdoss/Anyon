@@ -19,7 +19,7 @@
 @property (assign) bool configFsaa;
 
 - (void) initialize;
-- (void) free;
+- (void) finalize;
 - (bool) mainLoop;
 - (void) resize:(NSRect)rect;
 - (void) gotFocus;

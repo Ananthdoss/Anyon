@@ -24,23 +24,16 @@ namespace AGE
     public:
         class Application
         {
-        friend class AGE::Engine;
-            
         public:
             virtual void Initiaize() = 0;
-            virtual void Free() = 0;
+            virtual void Finalize() = 0;
             virtual void Update(const double delta) = 0;
-            virtual void Activate();
-            virtual void Deactivate();
-            
-            virtual ~Application();
-            
-        protected:
-            AGE::Engine* Engine() const;
-            
-        private:
-            AGE::Engine *engine;
+            virtual void Activate(){};
+            virtual void Deactivate(){};
+            virtual ~Application(){};
         };
+        
+        static Engine* Instance();
         
         struct Configuration
         {
@@ -50,9 +43,9 @@ namespace AGE
             bool vsync = true;
             bool fsaa = true;
         };
-        
         static Configuration config;
-        static PlatformWrapper* Start(Application *app);
+        
+        void Start(Application *app);
         void Stop();
         bool Pause = false;
         void Reconfigure();
@@ -63,14 +56,11 @@ namespace AGE
         bool KeyPressed(KeyCode key) const;
         void ShowCursor(bool visible);
         
-        Renderer* Renderer();
-        
         Engine(Engine const &) = delete;
         Engine& operator = (Engine const &) = delete;
         
     private:
-        Application *app;
-        class Renderer *renderer = nullptr;
+        Application *app = nullptr;
         
         bool stopFlag = false;
         bool keys[256];
@@ -81,11 +71,11 @@ namespace AGE
         unsigned fpsCount;
         unsigned fps = 0;
         
-        Engine(Application *app);
-        ~Engine();
+        Engine();
+        ~Engine(){};
         
         void Initialize() final;
-        void Free() final;
+        void Finalize() final;
         bool MainLoop() final;
         void Resize(unsigned width, unsigned height) final;
         void Activate() final;

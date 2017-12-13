@@ -69,10 +69,10 @@ using namespace AGE;
     NSLog(@"Initialized");
 }
 
-- (void) free
+- (void) finalize
 {
-    ((PlatformWrapper *)wrapper)->Free();
-    NSLog(@"Freed");
+    ((PlatformWrapper *)wrapper)->Finalize();
+    NSLog(@"Finalized");
 }
 
 - (bool) mainLoop
@@ -108,7 +108,7 @@ using namespace AGE;
         case 0x2C: return KEY_SLASH;
         case 0x2A: return KEY_BACKSLASH;
             
-        //case 0x: return KEY_SYSRQ; Could be NSF13FunctionKey or NSSysReqFunctionKey or NSPrintScreenFunctionKey so it's not clear how to get it working here.
+        case 0x69: return KEY_SYSRQ;
         case 0x6B: return KEY_SCROLL;
         case 0x71: return KEY_PAUSE;
             

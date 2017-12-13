@@ -12,7 +12,7 @@ namespace AGE
         void SetInterlayerInstanceId(/*EngineInterlayer*/void *id);
 #endif
         virtual void Initialize() = 0;
-        virtual void Free() = 0;
+        virtual void Finalize() = 0;
         virtual bool MainLoop() = 0;
         virtual void Resize(unsigned width, unsigned height) = 0;
         virtual void Activate() = 0;

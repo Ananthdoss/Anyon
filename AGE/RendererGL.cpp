@@ -16,23 +16,23 @@ Renderer::RendererType RendererGL::UnderlyingRenderer()
     return OpenGL4_1Core;
 }
 
-void RendererGL::Clear(bool color, bool depth, bool stencil)
+void RendererGL::PrepareQueue()
 {
-    GLbitfield mask = 0;
-    
-    if (color)
-        mask |= GL_COLOR_BUFFER_BIT;
-    
-    if (depth)
-        mask |= GL_DEPTH_BUFFER_BIT;
-    
-    if (stencil)
-        mask |= GL_STENCIL_BUFFER_BIT;
-    
-    glClear(mask);
 }
 
-void RendererGL::UpdateViewport(unsigned width, unsigned height)
+void RendererGL::CompleteQueue()
 {
-    glViewport(0, 0, width, height);
+}
+void RendererGL::SetDefaultState()
+{
+}
+
+void RendererGL::Clear(bool color, bool depth, bool stencil)
+{
+    glClear((color ? GL_COLOR_BUFFER_BIT : 0) | (depth ? GL_DEPTH_BUFFER_BIT : 0) | (stencil ? GL_STENCIL_BUFFER_BIT : 0));
+}
+
+void RendererGL::SetViewport(int x, int y, unsigned width, unsigned height)
+{
+    glViewport(x, y, width, height);
 }

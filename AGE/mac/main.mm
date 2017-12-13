@@ -16,8 +16,9 @@ int main(int argc, char **argv)
     [NSApplication sharedApplication];
     
     Engine::Application *app = new Game();
-    AppDelegate *appDelegate = [[AppDelegate alloc] initWithPlatformWrapper:Engine::Start(app)];
+    AppDelegate *appDelegate = [[AppDelegate alloc] initWithPlatformWrapper:(PlatformWrapper*)Engine::Instance()];
     [NSApp setDelegate:appDelegate];
+    Engine::Instance()->Start(app);
     
     [NSApp activateIgnoringOtherApps:YES];
     [NSApp run];
@@ -28,3 +29,4 @@ int main(int argc, char **argv)
     
     return 0;
 }
+

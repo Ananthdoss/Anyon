@@ -141,7 +141,7 @@
     }
     else
     {
-        [engine free];
+        [engine finalize];
         [view release];
         [NSApp stop:self];
     }

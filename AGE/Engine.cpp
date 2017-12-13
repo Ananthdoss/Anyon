@@ -1,51 +1,28 @@
+#include <cassert>
 #include "Engine.hpp"
 #include "Utils.hpp"
-#include "RendererGL.hpp"
+#include "Renderer.hpp"
 
 using namespace AGE;
 using namespace std;
 using namespace chrono;
 
-Engine::Application::~Application()
-{
-    engine = nullptr;
-}
-
-void Engine::Application::Activate()
-{
-    engine->Pause = false;
-}
-
-void Engine::Application::Deactivate()
-{
-    engine->Pause = true;
-}
-
-AGE::Engine* Engine::Application::Engine() const
-{
-    return engine;
-}
-
 Engine::Configuration Engine::config;
 
-Engine::Engine(Application *app)
+Engine* Engine::Instance()
+{
+    static Engine instance;
+    return &instance;
+}
+
+Engine::Engine()
 {
     memset(&keys, 0, 256);
     memset(&mouse, 0, sizeof(Mouse));
-    
-    this->app = app;
-    this->app->engine = this;
-}
-
-Engine::~Engine()
-{
-    this->app = nullptr;
 }
 
 void Engine::Initialize()
 {
-    renderer = new RendererGL();
-    
     app->Initiaize();
     
     auto time = GetPerfTimer<milliseconds>();
@@ -54,11 +31,9 @@ void Engine::Initialize()
     fpsCount = 0;
 }
 
-void Engine::Free()
+void Engine::Finalize()
 {
-    app->Free();
-    
-    delete renderer;
+    app->Finalize();
 }
 
 bool Engine::MainLoop()
@@ -74,8 +49,11 @@ bool Engine::MainLoop()
     
     if (!Pause)
     {
-        renderer->Clear(true, true, true);
+        auto *r = Renderer::Instance();
+        r->CompleteQueue();
+        r->Clear(true, true, true);
         app->Update((time - lastUpdateTime).count() / 1000.0);
+        r->CompleteQueue();
     }
     
     lastUpdateTime = time;
@@ -86,7 +64,7 @@ bool Engine::MainLoop()
 
 void Engine::Resize(unsigned width, unsigned height)
 {
-    ((RendererGL *)renderer)->UpdateViewport(width, height);
+    Renderer::Instance()->SetViewport(0, 0, width, height);
 }
 
 void Engine::Activate()
@@ -128,10 +106,10 @@ void Engine::MouseWheel(int delta)
     mouse.wheel = delta;
 }
 
-PlatformWrapper* Engine::Start(Application *app)
+void Engine::Start(Application *app)
 {
-    static Engine engine(app);
-    return &engine;
+    assert(app != nullptr && app != this->app);
+    this->app = app;
 }
 
 void Engine::Stop()
@@ -169,7 +147,3 @@ void Engine::ShowCursor(bool visible)
     ToggleCursorVisiblity(visible);
 }
 
-Renderer* Engine::Renderer()
-{
-    return renderer;
-}
