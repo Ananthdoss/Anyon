@@ -2,7 +2,7 @@
 
 @implementation AppDelegate
 
-- (id) initWithPlatformWrapper:(/*AGE::PlatformWrapper*/void *)wrapper
+- (id) initWithPlatformWrapper:(/*Anyon::PlatformWrapper*/void *)wrapper
 {
     if (self = [super init])
     {

@@ -4,7 +4,7 @@
 #include <chrono>
 #include "PlatformWrapper.hpp"
 
-namespace AGE
+namespace Anyon
 {
     class Renderer;
     

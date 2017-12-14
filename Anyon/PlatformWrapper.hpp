@@ -1,6 +1,6 @@
 #pragma once
 
-namespace AGE
+namespace Anyon
 {
     enum KeyCode : unsigned char;
     

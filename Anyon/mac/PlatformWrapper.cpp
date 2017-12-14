@@ -1,7 +1,7 @@
 #include "../PlatformWrapper.hpp"
 #include "EngineInterlayer-CPP-Interface.h"
 
-using namespace AGE;
+using namespace Anyon;
 
 void PlatformWrapper::SetInterlayerInstanceId(/*EngineInterlayer*/void *id)
 {

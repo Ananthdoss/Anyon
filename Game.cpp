@@ -1,10 +1,11 @@
 #include "Game.hpp"
-#include <Utils.hpp>
+#include <utils.hpp>
 
 Game::Game()
 {
-    //Engine::config.fullscreen = true;
+#ifndef NDEBUG
     Engine::config.vsync = false;
+#endif
 }
 
 Game::~Game()

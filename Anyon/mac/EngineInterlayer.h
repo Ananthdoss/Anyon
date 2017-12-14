@@ -7,10 +7,10 @@
     AppDelegate *appDelegate;
     NSUInteger keyMask;
     NSCharacterSet *alphanumeric, *punctuation, *symbol;
-    /*AGE::PlatformWrapper*/void *wrapper;
+    /*Anyon::PlatformWrapper*/void *wrapper;
 }
 
-- (id) initWithAppDelegate:(AppDelegate *)delegate platformWrapper:(/*AGE::PlatformWrapper*/void *)wrapper;
+- (id) initWithAppDelegate:(AppDelegate *)delegate platformWrapper:(/*Anyon::PlatformWrapper*/void *)wrapper;
 
 @property (assign) unsigned configWidth;
 @property (assign) unsigned configHeight;

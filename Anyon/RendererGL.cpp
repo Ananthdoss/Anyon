@@ -1,7 +1,7 @@
 #include "RendererGL.hpp"
-#include "Utils.hpp"
+#include "utils.hpp"
 
-using namespace AGE;
+using namespace Anyon;
 
 RendererGL::RendererGL()
 {

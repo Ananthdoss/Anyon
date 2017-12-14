@@ -1,9 +1,9 @@
 #include <cassert>
 #include "Engine.hpp"
-#include "Utils.hpp"
+#include "utils.hpp"
 #include "Renderer.hpp"
 
-using namespace AGE;
+using namespace Anyon;
 using namespace std;
 using namespace chrono;
 

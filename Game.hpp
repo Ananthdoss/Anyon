@@ -2,7 +2,7 @@
 
 #include <Engine.hpp>
 
-using namespace AGE;
+using namespace Anyon;
 
 class Game : public Engine::Application
 {

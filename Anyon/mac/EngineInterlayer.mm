@@ -3,7 +3,7 @@
 
 #include "../Engine.hpp"
 
-using namespace AGE;
+using namespace Anyon;
 
 @implementation EngineInterlayer
 
@@ -95,7 +95,7 @@ using namespace AGE;
     ((PlatformWrapper *)wrapper)->Deactivate();
 }
 
-- (AGE::KeyCode) keyCodefromMacKey:(unsigned short)key
+- (Anyon::KeyCode) keyCodefromMacKey:(unsigned short)key
 {
     switch (key)
     {

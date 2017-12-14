@@ -16,7 +16,7 @@
     
     BOOL doReconfigureOnWindowClose;
 }
-- (id) initWithPlatformWrapper:(/*AGE::PlatformWrapper*/void *)wrapper;
+- (id) initWithPlatformWrapper:(/*Anyon::PlatformWrapper*/void *)wrapper;
 - (void) reconfigureWindow;
 
 @end

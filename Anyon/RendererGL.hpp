@@ -3,7 +3,7 @@
 #include <OpenGL/gl3.h>
 #include "Renderer.hpp"
 
-namespace AGE
+namespace Anyon
 {
     class RendererGL : public Renderer
     {
