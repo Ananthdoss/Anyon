@@ -18,21 +18,34 @@ Renderer::RendererType RendererGL::UnderlyingRenderer()
 
 void RendererGL::PrepareQueue()
 {
+    Renderer::PrepareQueue();
 }
 
 void RendererGL::CompleteQueue()
 {
-}
-void RendererGL::SetDefaultState()
-{
+    Renderer::CompleteQueue();
 }
 
-void RendererGL::Clear(bool color, bool depth, bool stencil)
+void RendererGL::SetDefaultStates()
 {
-    glClear((color ? GL_COLOR_BUFFER_BIT : 0) | (depth ? GL_DEPTH_BUFFER_BIT : 0) | (stencil ? GL_STENCIL_BUFFER_BIT : 0));
+    Renderer::SetDefaultStates();
 }
 
 void RendererGL::SetViewport(int x, int y, unsigned width, unsigned height)
 {
+    Renderer::SetViewport(x, y, width, height);
     glViewport(x, y, width, height);
 }
+
+void RendererGL::Clear(bool color, bool depth, bool stencil)
+{
+    Renderer::Clear(color, depth, stencil);
+    glClear((color ? GL_COLOR_BUFFER_BIT : 0) | (depth ? GL_DEPTH_BUFFER_BIT : 0) | (stencil ? GL_STENCIL_BUFFER_BIT : 0));
+}
+
+void RendererGL::ClearColor(const Color &col)
+{
+    Renderer::ClearColor(col);
+    glClearColor(col.r, col.g, col.b, col.a);
+}
+

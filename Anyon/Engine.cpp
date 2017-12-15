@@ -23,6 +23,8 @@ Engine::Engine()
 
 void Engine::Initialize()
 {
+    Renderer::Instance()->SetDefaultStates();
+    
     app->Initiaize();
     
     auto time = GetPerfTimer<milliseconds>();

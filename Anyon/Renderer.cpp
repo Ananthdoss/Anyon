@@ -26,8 +26,9 @@ void Renderer::CompleteQueue()
 {
 }
 
-void Renderer::SetDefaultState()
+void Renderer::SetDefaultStates()
 {
+    ClearColor(ColorClear());
 }
 
 void Renderer::SetViewport(int x, int y, unsigned width, unsigned height)
@@ -37,3 +38,14 @@ void Renderer::SetViewport(int x, int y, unsigned width, unsigned height)
 void Renderer::Clear(bool color, bool depth, bool stencil)
 {
 }
+
+void Renderer::ClearColor(const Color &col)
+{
+    colorClear = col;
+}
+
+Color Renderer::ClearColor()
+{
+    return colorClear;
+}
+

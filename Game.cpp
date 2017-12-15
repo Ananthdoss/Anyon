@@ -3,9 +3,7 @@
 
 Game::Game()
 {
-#ifndef NDEBUG
     Engine::config.vsync = false;
-#endif
 }
 
 Game::~Game()
@@ -15,7 +13,6 @@ Game::~Game()
 
 void Game::Initiaize()
 {
-
 }
 
 void Game::Finalize()

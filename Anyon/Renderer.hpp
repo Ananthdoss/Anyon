@@ -1,5 +1,7 @@
 #pragma once
 
+#include "types.hpp"
+
 namespace Anyon
 {
     class Renderer
@@ -11,9 +13,11 @@ namespace Anyon
         
         virtual void PrepareQueue();
         virtual void CompleteQueue();
-        virtual void SetDefaultState();
+        virtual void SetDefaultStates();
         virtual void SetViewport(int x, int y, unsigned width, unsigned height);
         virtual void Clear(bool color, bool depth, bool stencil);
+        virtual void ClearColor(const Color &col);
+        virtual Color ClearColor();
         
         enum RendererType { OpenGL4_1Core };
         virtual RendererType UnderlyingRenderer() = 0;
@@ -22,6 +26,8 @@ namespace Anyon
         Renderer& operator = (Renderer const &) = delete;
         
     private:
+        Color colorClear = ColorClear();
+        
         virtual ~Renderer();
         Renderer();
     };

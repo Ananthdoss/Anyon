@@ -12,9 +12,10 @@ namespace Anyon
     public:
         void PrepareQueue() final;
         void CompleteQueue() final;
-        void SetDefaultState() final;
-        void Clear(bool color, bool depth, bool stencil) final;
+        void SetDefaultStates() final;
         void SetViewport(int x, int y, unsigned width, unsigned height) final;
+        void Clear(bool color, bool depth, bool stencil) final;
+        void ClearColor(const Color &col) final;
         
         RendererType UnderlyingRenderer() final;
         
@@ -26,3 +27,4 @@ namespace Anyon
         ~RendererGL();
     };
 }
+
