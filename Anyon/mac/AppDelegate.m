@@ -15,7 +15,7 @@
         [appMenu addItem:appQuitItem];
         [appMenuItem setSubmenu:appMenu];
         
-        engine = [[EngineInterlayer alloc] initWithAppDelegate:self platformWrapper:wrapper];
+        core = [[CoreInterlayer alloc] initWithAppDelegate:self platformWrapper:wrapper];
     }
     
     return self;
@@ -23,7 +23,7 @@
 
 - (void) dealloc
 {
-    [engine release];
+    [core release];
     
     [mainMenuBar release];
     [appMenuItem release];
@@ -37,43 +37,43 @@
 {
     const NSRect dispRect = [[NSScreen mainScreen] frame];
     
-    if (engine.configFullscreen)
+    if (core.configFullscreen)
     {
-        if (engine.configWidth == -1)
-            engine.configWidth = dispRect.size.width;
+        if (core.configWidth == -1)
+            core.configWidth = dispRect.size.width;
         
-        if (engine.configHeight == -1)
-            engine.configHeight = dispRect.size.height;
+        if (core.configHeight == -1)
+            core.configHeight = dispRect.size.height;
         
         return NSMakeRect(0, 0, dispRect.size.width, dispRect.size.height);
     }
     else
     {
-        if (engine.configWidth == -1)
-            engine.configWidth = dispRect.size.width / 2;
+        if (core.configWidth == -1)
+            core.configWidth = dispRect.size.width / 2;
         
-        if (engine.configHeight == -1)
-            engine.configHeight = dispRect.size.height / 2;
+        if (core.configHeight == -1)
+            core.configHeight = dispRect.size.height / 2;
         
-        return NSMakeRect((dispRect.size.width - engine.configWidth) / 2, (dispRect.size.height - engine.configHeight) / 2, engine.configWidth, engine.configHeight);
+        return NSMakeRect((dispRect.size.width - core.configWidth) / 2, (dispRect.size.height - core.configHeight) / 2, core.configWidth, core.configHeight);
     }
 }
 
 - (void) createWindow
 {
     window = [[NSWindow alloc] initWithContentRect:[self calculateWindowRect]
-                                         styleMask:engine.configFullscreen ? NSWindowStyleMaskBorderless : NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable
+                                         styleMask:core.configFullscreen ? NSWindowStyleMaskBorderless : NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable
                                            backing:NSBackingStoreBuffered
                                              defer:YES];
     
     window.title = [[NSProcessInfo processInfo] processName];
     
     [window setOpaque:YES];
-    [window setHidesOnDeactivate:engine.configFullscreen ? YES : NO];
+    [window setHidesOnDeactivate:core.configFullscreen ? YES : NO];
     [window setReleasedWhenClosed:NO];
     [window setAcceptsMouseMovedEvents:YES];
     
-    if (engine.configFullscreen)
+    if (core.configFullscreen)
         [window setLevel:NSMainMenuWindowLevel + 1];
     
     doReconfigureOnWindowClose = NO;
@@ -89,7 +89,7 @@
 {
     [self createWindow];
     
-    view = [[OpenGLView alloc] initWithFrame:window.frame engineInterlayer:engine];
+    view = [[OpenGLView alloc] initWithFrame:window.frame coreInterlayer:core];
     view.ownerWindow = window;
     
     [window setContentView:view];
@@ -103,7 +103,7 @@
 {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowWillClose:) name:NSWindowWillCloseNotification object:window];
     
-    [engine initialize];
+    [core initialize];
     
     [view activate];
     
@@ -141,7 +141,7 @@
     }
     else
     {
-        [engine finalize];
+        [core finalize];
         [view release];
         [NSApp stop:self];
     }

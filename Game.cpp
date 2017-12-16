@@ -3,7 +3,7 @@
 
 Game::Game()
 {
-    Engine::config.vsync = false;
+    Core::config.vsync = false;
 }
 
 Game::~Game()

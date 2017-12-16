@@ -1,11 +1,11 @@
 #pragma once
 
 #include <types.hpp>
-#include <Engine.hpp>
+#include <Core.hpp>
 
 using namespace Anyon;
 
-class Game : public Engine::Application
+class Game : public Core::Application
 {
 public:
     Game();

@@ -1,11 +1,11 @@
 #import <Cocoa/Cocoa.h>
-#import "EngineInterlayer.h"
+#import "CoreInterlayer.h"
 #import "OpenGLView.h"
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 {
 @private
-    EngineInterlayer *engine;
+    CoreInterlayer *core;
     NSMenu *mainMenuBar;
     NSMenuItem *appMenuItem;
     NSMenu *appMenu;

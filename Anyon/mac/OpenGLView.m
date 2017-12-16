@@ -47,10 +47,10 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
     CVDisplayLinkSetCurrentCGDisplayFromOpenGLContext(displayLink, [context CGLContextObj], [pixelFormat CGLPixelFormatObj]);
 }
 
-- (id) initWithFrame:(NSRect)frameRect engineInterlayer:(EngineInterlayer *)engine
+- (id) initWithFrame:(NSRect)frameRect coreInterlayer:(CoreInterlayer *)core
 {
     window = nil;
-    self->engine = engine;
+    self->core = core;
     
     const NSOpenGLPixelFormatAttribute attribs_common[] =
     {
@@ -66,14 +66,14 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
         NSOpenGLProfileVersion4_1Core,
         NSOpenGLPFAMultisample,
         NSOpenGLPFASampleBuffers, 1,
-        NSOpenGLPFASamples, engine.configFsaa ? MSAA_BUFFERS : 1,
+        NSOpenGLPFASamples, core.configFsaa ? MSAA_BUFFERS : 1,
         0
     };
     
     pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attribs_common];
     
     if (!pixelFormat)
-        [self->engine fatalAlert:@"No suitable OpenGL 4.1 pixel format found!"];
+        [self->core fatalAlert:@"No suitable OpenGL 4.1 pixel format found!"];
     
     self->context = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
     
@@ -81,7 +81,7 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
     {
         [context makeCurrentContext];
         
-        const GLint swap = engine.configVsync ? 1 : 0;
+        const GLint swap = core.configVsync ? 1 : 0;
         [context setValues:&swap forParameter:NSOpenGLCPSwapInterval];
         
         [self setupDisplayLink];
@@ -103,14 +103,14 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 {
     [context makeCurrentContext];
     
-    const GLint swap = engine.configVsync ? 1 : 0;
+    const GLint swap = core.configVsync ? 1 : 0;
     [context setValues:&swap forParameter:NSOpenGLCPSwapInterval];
     
     GLint val;
     [pixelFormat getValues:&val forAttribute:NSOpenGLPFASamples forVirtualScreen:0];
-    if ((val == MSAA_BUFFERS) != engine.configFsaa)
+    if ((val == MSAA_BUFFERS) != core.configFsaa)
     {
-        engine.configFsaa = val == MSAA_BUFFERS;
+        core.configFsaa = val == MSAA_BUFFERS;
         NSLog(@"Can not change FSAA settings after initialization!");
     }
 }
@@ -121,20 +121,20 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
     
     NSRect bounds = [self bounds];
     
-    if (bounds.size.width != engine.configWidth || bounds.size.height != engine.configHeight)
+    if (bounds.size.width != core.configWidth || bounds.size.height != core.configHeight)
     {
-        const GLint dim[2] = {engine.configWidth, engine.configHeight};
+        const GLint dim[2] = {core.configWidth, core.configHeight};
         CGLSetParameter([context CGLContextObj], kCGLCPSurfaceBackingSize, dim);
         CGLEnable([context CGLContextObj], kCGLCESurfaceBackingSize);
         
-        bounds.size.width = engine.configWidth;
-        bounds.size.height = engine.configHeight;
-        [engine resize:bounds];
+        bounds.size.width = core.configWidth;
+        bounds.size.height = core.configHeight;
+        [core resize:bounds];
     }
     else
     {
         CGLDisable([context CGLContextObj], kCGLCESurfaceBackingSize);
-        [engine resize:bounds];
+        [core resize:bounds];
     }
     
     [context update];
@@ -160,7 +160,7 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
     
     [context makeCurrentContext];
     
-    if (![engine mainLoop])
+    if (![core mainLoop])
         [window close];
     
     [context flushBuffer];
@@ -175,29 +175,29 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 
 - (void) didBecomeKeyNotification:(NSNotification *)notification
 {
-    [engine gotFocus];
+    [core gotFocus];
 }
 
 - (void) didResignKeyNotification:(NSNotification *)notification
 {
-    [engine lostFocus];
+    [core lostFocus];
 }
 
 - (void) keyDown:(NSEvent *)event
 {
-    [engine setKey:[event keyCode] status:true];
+    [core setKey:[event keyCode] status:true];
     
-    [engine inputCharacter:[[event charactersIgnoringModifiers] characterAtIndex:0]];
+    [core inputCharacter:[[event charactersIgnoringModifiers] characterAtIndex:0]];
 }
 
 - (void) keyUp:(NSEvent *)event
 {
-    [engine setKey:[event keyCode] status:false];
+    [core setKey:[event keyCode] status:false];
 }
 
 - (void) mouseMoved:(NSEvent *)event
 {
-    [engine setMousePosition:[event locationInWindow]];
+    [core setMousePosition:[event locationInWindow]];
 }
 
 - (void) mouseDown:(NSEvent *)event
@@ -205,10 +205,10 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
     switch ([event type])
     {
         case NSEventTypeLeftMouseDown:
-            [engine setLeftMouseButton:true];
+            [core setLeftMouseButton:true];
             break;
         case NSEventTypeRightMouseDown:
-            [engine setRightMouseButton:true];
+            [core setRightMouseButton:true];
             break;
         default:
             break;
@@ -220,10 +220,10 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
     switch ([event type])
     {
         case NSEventTypeLeftMouseUp:
-            [engine setLeftMouseButton:false];
+            [core setLeftMouseButton:false];
             break;
         case NSEventTypeRightMouseUp:
-            [engine setRightMouseButton:false];
+            [core setRightMouseButton:false];
             break;
         default:
             break;
@@ -232,12 +232,12 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 
 - (void) scrollWheel:(NSEvent *)event
 {
-    [engine setMouseWheel:[event deltaY]];
+    [core setMouseWheel:[event deltaY]];
 }
 
 - (void) flagsChanged:(NSEvent *)event
 {
-    [engine setKeyFlags:[event modifierFlags]];
+    [core setKeyFlags:[event modifierFlags]];
 }
 
 - (void) activate

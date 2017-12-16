@@ -1,9 +1,9 @@
 #include "../PlatformWrapper.hpp"
-#include "EngineInterlayer-CPP-Interface.h"
+#include "CoreInterlayer-CPP-Interface.h"
 
 using namespace Anyon;
 
-void PlatformWrapper::SetInterlayerInstanceId(/*EngineInterlayer*/void *id)
+void PlatformWrapper::SetInterlayerInstanceId(/*CoreInterlayer*/void *id)
 {
     this->interlayerId = id;
 }

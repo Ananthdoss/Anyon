@@ -1,5 +1,5 @@
 #import <Cocoa/Cocoa.h>
-#import "EngineInterlayer.h"
+#import "CoreInterlayer.h"
 
 @interface OpenGLView : NSView
 {
@@ -8,12 +8,12 @@
     NSOpenGLPixelFormat *pixelFormat;
     CVDisplayLinkRef displayLink;
     NSWindow *window;
-    EngineInterlayer *engine;
+    CoreInterlayer *core;
 }
 
 @property (assign) NSWindow *ownerWindow;
 
-- (id) initWithFrame:(NSRect)frameRect engineInterlayer:(EngineInterlayer *)engine;
+- (id) initWithFrame:(NSRect)frameRect coreInterlayer:(CoreInterlayer *)core;
 - (void) reconfig;
 - (void) reshape;
 - (void) activate;

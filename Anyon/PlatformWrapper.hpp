@@ -9,7 +9,7 @@ namespace Anyon
     public:
         enum MouseButton {Left, Right};
 #ifdef __APPLE__
-        void SetInterlayerInstanceId(/*EngineInterlayer*/void *id);
+        void SetInterlayerInstanceId(/*CoreInterlayer*/void *id);
 #endif
         virtual void Initialize() = 0;
         virtual void Finalize() = 0;
@@ -29,7 +29,7 @@ namespace Anyon
         
     private:
 #ifdef __APPLE__
-        /*EngineInterlayer*/void *interlayerId;
+        /*CoreInterlayer*/void *interlayerId;
 #endif
     };
 }
