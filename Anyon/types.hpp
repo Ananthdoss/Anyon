@@ -1,5 +1,7 @@
 #pragma once
 
+#include <sstream>
+#include <iomanip>
 #include <cstdint>
 #include <cmath>
 #include <algorithm>
@@ -77,6 +79,13 @@ namespace Anyon
         inline operator uint32_t() const
         {
             return ((uint32_t)(((uint8_t)(255 * r) | ((uint32_t)((uint8_t)(255 * g)) << 8)) | (((uint32_t)(uint8_t)(255 * b)) << 16) | (((uint32_t)(uint8_t)(255 * a)) << 24)));
+        }
+        
+        inline operator std::string() const
+        {
+            std::ostringstream s;
+            s << std::hex << "#" << (uint32_t)*this;
+            return s.str();
         }
         
         inline operator ref()
@@ -274,8 +283,22 @@ namespace Anyon
             return *this - normal * (2.f * Dot(normal));
         }
         
-        inline operator ref() { return xy; }
-        inline operator cref() const { return xy; }
+        inline operator std::string() const
+        {
+            std::ostringstream s;
+            s << std::fixed << std::setprecision(2) << "(" << x << "," << y << ")";
+            return s.str();
+        }
+        
+        inline operator ref()
+        {
+            return xy;
+        }
+        
+        inline operator cref() const
+        {
+            return xy;
+        }
     };
     
     struct Rect
@@ -321,6 +344,13 @@ namespace Anyon
             }
             else
                 return Rect();
+        }
+        
+        inline operator std::string() const
+        {
+            std::ostringstream s;
+            s << std::fixed << std::setprecision(2) << "[" << x << "," << y << ":" << width << "," << height << "]";
+            return s.str();
         }
     };
     
@@ -493,9 +523,22 @@ namespace Anyon
             return *this - normal * (2.f * Dot(normal));
         }
         
-        inline operator ref() { return xyz; }
-        inline operator cref() const { return xyz; }
+        inline operator std::string() const
+        {
+            std::ostringstream s;
+            s << std::fixed << std::setprecision(4) << "(" << x << "," << y << "," << z << ")";
+            return s.str();
+        }
         
+        inline operator ref()
+        {
+            return xyz;
+        }
+        
+        inline operator cref() const
+        {
+            return xyz;
+        }
     };
     
     struct Matrix4
@@ -766,6 +809,17 @@ namespace Anyon
                            v.x * v.y * (1.f - c) - v.z * s,     (1.f - v.y * v.y) * c + v.y * v.y,  v.y * v.z * (1.f - c) + v.x * s,    0.f,
                            v.x * v.z * (1.f - c) + v.y * s,     v.y * v.z * (1.f - c) - v.x * s,    (1.f - v.z * v.z) * c + v.z * v.z,  0.f,
                            0.f, 0.f, 0.f, 1.f);
+        }
+        
+        inline operator std::string() const
+        {
+            std::ostringstream s;
+            s << std::fixed << std::setprecision(4);
+            s << "\n|" << _2D[0][0] << " " << _2D[1][0] << " " << _2D[2][0] << " " << _2D[3][0] << "|\n";
+            s <<   "|" << _2D[0][1] << " " << _2D[1][1] << " " << _2D[2][1] << " " << _2D[3][1] << "|\n";
+            s <<   "|" << _2D[0][2] << " " << _2D[1][2] << " " << _2D[2][2] << " " << _2D[3][2] << "|\n";
+            s <<   "|" << _2D[0][3] << " " << _2D[1][3] << " " << _2D[2][3] << " " << _2D[3][3] << "|\n";
+            return s.str();
         }
     };
 }
