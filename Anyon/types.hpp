@@ -83,17 +83,24 @@ namespace Anyon
         
         inline operator std::string() const
         {
-            std::ostringstream s;
+            static std::ostringstream s;
+            s.clear();
             s << std::hex << "#" << (uint32_t)*this;
             return s.str();
         }
         
-        inline operator ref()
+        friend std::ostream& operator << (std::ostream& stream, const Color& col)
+        {
+            stream << (std::string)col;
+            return stream;
+        }
+        
+        inline operator ref ()
         {
             return rgba;
         }
         
-        inline operator cref() const
+        inline operator cref () const
         {
             return rgba;
         }
@@ -269,12 +276,12 @@ namespace Anyon
         
         inline float Angle(const Vector2 &vec) const
         {
-            return atan2f(y - vec.y, x - vec.x);
+            return std::atan2(y - vec.y, x - vec.x);
         }
         
         inline Vector2 Rotate(float fAngle) const
         {
-            const float s = sinf(fAngle), c = cosf(fAngle);
+            const float s = std::sin(fAngle), c = std::cos(fAngle);
             return Vector2(x * c - y * s, x * s + y * c);
         }
         
@@ -285,31 +292,48 @@ namespace Anyon
         
         inline operator std::string() const
         {
-            std::ostringstream s;
+            static std::ostringstream s;
+            s.clear();
             s << std::fixed << std::setprecision(2) << "(" << x << "," << y << ")";
             return s.str();
         }
         
-        inline operator ref()
+        friend std::ostream& operator << (std::ostream& stream, const Vector2& vec)
+        {
+            stream << (std::string)vec;
+            return stream;
+        }
+        
+        inline operator ref ()
         {
             return xy;
         }
         
-        inline operator cref() const
+        inline operator cref () const
         {
             return xy;
         }
     };
     
-    struct Rect
+    struct Rectangle
     {
-        float x, y, width, height;
+        union
+        {
+            struct
+            {
+                float x, y, width, height;
+            };
+            float rect[4];
+        };
         
-        inline Rect(): x(0.f), y(0.f), width(0.f), height(0.f){}
-        inline Rect(float x, float y, float width, float height): x(x), y(y), width(width), height(height){}
-        inline Rect(const Vector2 &vecLeftTop, const Vector2 &vecRightBottom): x(vecLeftTop.x), y(vecLeftTop.y), width(vecRightBottom.x - vecLeftTop.x), height(vecRightBottom.y - vecLeftTop.y){}
+        typedef float (&ref)[4];
+        typedef const float (&cref)[4];
         
-        inline bool Intersects(const Rect &rect) const
+        inline Rectangle(): x(0.f), y(0.f), width(0.f), height(0.f){}
+        inline Rectangle(float x, float y, float width, float height): x(x), y(y), width(width), height(height){}
+        inline Rectangle(const Vector2 &vecLeftTop, const Vector2 &vecRightBottom): x(vecLeftTop.x), y(vecLeftTop.y), width(vecRightBottom.x - vecLeftTop.x), height(vecRightBottom.y - vecLeftTop.y){}
+        
+        inline bool Intersects(const Rectangle &rect) const
         {
             return (x < rect.x + rect.width && x + width > rect.x && y < rect.y + rect.height && y + height > rect.y) ||
             (rect.x + rect.width < x && rect.x > x + width && rect.y + rect.height < y && rect.y > y + height);
@@ -320,16 +344,16 @@ namespace Anyon
             return vec.x > x && vec.x < x + width && vec.y > y && vec.y < y + height;
         }
         
-        inline bool Include(const Rect &rect) const
+        inline bool Include(const Rectangle &rect) const
         {
             return rect.x < x && rect.y < y && rect.x + rect.width > x + width && rect.y + rect.height > y + height;
         }
         
-        inline Rect Intersection(const Rect &rect) const
+        inline Rectangle Intersection(const Rectangle &rect) const
         {
             if (Intersects(rect))
             {
-                Rect result = rect;
+                Rectangle result = rect;
                 
                 if (x > rect.x) result.x = x;
                 if (y > rect.y) result.y = y;
@@ -343,14 +367,31 @@ namespace Anyon
                 return result;
             }
             else
-                return Rect();
+                return Rectangle();
         }
         
         inline operator std::string() const
         {
-            std::ostringstream s;
+            static std::ostringstream s;
+            s.clear();
             s << std::fixed << std::setprecision(2) << "[" << x << "," << y << ":" << width << "," << height << "]";
             return s.str();
+        }
+        
+        friend std::ostream& operator << (std::ostream& stream, const Rectangle& rec)
+        {
+            stream << (std::string)rec;
+            return stream;
+        }
+        
+        inline operator ref ()
+        {
+            return rect;
+        }
+        
+        inline operator cref () const
+        {
+            return rect;
         }
     };
     
@@ -503,12 +544,12 @@ namespace Anyon
         
         inline float Angle(const Vector3 &vec) const
         {
-            return acosf(Dot(vec) / sqrtf(LengthQ() * vec.LengthQ()));
+            return std::acos(Dot(vec) / std::sqrt(LengthQ() * vec.LengthQ()));
         }
         
         inline Vector3 Rotate(float fAngle, const Vector3 &axis) const
         {
-            const float s = sinf(fAngle), c = cosf(fAngle);
+            const float s = std::sin(fAngle), c = std::cos(fAngle);
             
             Vector3 v[3];
             v[0] = axis * Dot(axis);
@@ -525,17 +566,24 @@ namespace Anyon
         
         inline operator std::string() const
         {
-            std::ostringstream s;
+            static std::ostringstream s;
+            s.clear();
             s << std::fixed << std::setprecision(4) << "(" << x << "," << y << "," << z << ")";
             return s.str();
         }
         
-        inline operator ref()
+        friend std::ostream& operator << (std::ostream& stream, const Vector3& vec)
+        {
+            stream << (std::string)vec;
+            return stream;
+        }
+        
+        inline operator ref ()
         {
             return xyz;
         }
         
-        inline operator cref() const
+        inline operator cref () const
         {
             return xyz;
         }
@@ -548,6 +596,9 @@ namespace Anyon
             float _1D[16];
             float _2D[4][4];
         };
+        
+        typedef float (&ref)[16];
+        typedef const float (&cref)[16];
         
         inline Matrix4()
         {
@@ -803,23 +854,40 @@ namespace Anyon
         {
             Vector3 v = axis;
             v.Normalize();
-            const float s = sinf(angle), c = cosf(angle);
+            const float s = std::sin(angle), c = std::cos(angle), t = 1.f - c;
             return Matrix4(
-                           (1.f - v.x * v.x) * c + v.x * v.x,   v.z * s + v.x * v.y * (1.f - c),    v.x * v.z * (1.f - c) - v.y * s,    0.f,
-                           v.x * v.y * (1.f - c) - v.z * s,     (1.f - v.y * v.y) * c + v.y * v.y,  v.y * v.z * (1.f - c) + v.x * s,    0.f,
-                           v.x * v.z * (1.f - c) + v.y * s,     v.y * v.z * (1.f - c) - v.x * s,    (1.f - v.z * v.z) * c + v.z * v.z,  0.f,
+                           (1.f - v.x * v.x) * c + v.x * v.x,   v.z * s + v.x * v.y * t,            v.x * v.z * t - v.y * s,            0.f,
+                           v.x * v.y * t - v.z * s,             (1.f - v.y * v.y) * c + v.y * v.y,  v.y * v.z * t + v.x * s,            0.f,
+                           v.x * v.z * t + v.y * s,             v.y * v.z * t - v.x * s,            (1.f - v.z * v.z) * c + v.z * v.z,  0.f,
                            0.f, 0.f, 0.f, 1.f);
         }
         
         inline operator std::string() const
         {
-            std::ostringstream s;
-            s << std::fixed << std::setprecision(4);
-            s << "\n|" << _2D[0][0] << " " << _2D[1][0] << " " << _2D[2][0] << " " << _2D[3][0] << "|\n";
-            s <<   "|" << _2D[0][1] << " " << _2D[1][1] << " " << _2D[2][1] << " " << _2D[3][1] << "|\n";
-            s <<   "|" << _2D[0][2] << " " << _2D[1][2] << " " << _2D[2][2] << " " << _2D[3][2] << "|\n";
-            s <<   "|" << _2D[0][3] << " " << _2D[1][3] << " " << _2D[2][3] << " " << _2D[3][3] << "|\n";
+            static std::ostringstream s;
+            s.clear();
+            s << std::fixed << std::setprecision(4) << std::endl;
+            s << "|" << _2D[0][0] << " " << _2D[1][0] << " " << _2D[2][0] << " " << _2D[3][0] << "|" << std::endl;
+            s << "|" << _2D[0][1] << " " << _2D[1][1] << " " << _2D[2][1] << " " << _2D[3][1] << "|" << std::endl;
+            s << "|" << _2D[0][2] << " " << _2D[1][2] << " " << _2D[2][2] << " " << _2D[3][2] << "|" << std::endl;
+            s << "|" << _2D[0][3] << " " << _2D[1][3] << " " << _2D[2][3] << " " << _2D[3][3] << "|" << std::endl;
             return s.str();
+        }
+        
+        friend std::ostream& operator << (std::ostream& stream, const Matrix4& mat)
+        {
+            stream << (std::string)mat;
+            return stream;
+        }
+        
+        inline operator ref ()
+        {
+            return _1D;
+        }
+        
+        inline operator cref () const
+        {
+            return _1D;
         }
     };
 }

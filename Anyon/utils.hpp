@@ -2,6 +2,7 @@
 
 #include <string>
 #include <chrono>
+#include "types.hpp"
 
 namespace Anyon
 {
@@ -16,26 +17,5 @@ namespace Anyon
     inline auto GetPerfTimer() noexcept
     {
         return std::chrono::duration_cast<Duration>(GetPerfTimer());
-    }
-    
-    template <typename T>
-    T Argument(T value) noexcept
-    {
-        return value;
-    }
-    template <typename T>
-    T const * Argument(std::basic_string<T> const & value) noexcept
-    {
-        return value.c_str();
-    }
-    template <typename ... Args>
-    inline void Print(char const * const format, Args const & ... args) noexcept
-    {
-    #ifdef __APPLE__
-        extern int NSLogPrintf(const char * __restrict format, ...);
-        NSLogPrintf(format, Argument(args) ...);
-    #else
-        printf(format, Argument(args) ...);
-    #endif
     }
 }
