@@ -23,8 +23,8 @@ namespace Anyon
         RendererGL& operator = (RendererGL const &) = delete;
         
     private:
-        RendererGL();
-        ~RendererGL();
+        RendererGL(){};
+        ~RendererGL(){};
     };
 }
 

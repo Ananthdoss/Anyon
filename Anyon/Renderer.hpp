@@ -28,7 +28,7 @@ namespace Anyon
     private:
         Color colorClear = ColorClear();
         
-        virtual ~Renderer();
-        Renderer();
+        virtual ~Renderer(){};
+        Renderer(){};
     };
 }

@@ -9,15 +9,6 @@ Renderer* Renderer::Instance()
     return &instance;
 }
 
-
-Renderer::Renderer()
-{
-}
-
-Renderer::~Renderer()
-{
-}
-
 void Renderer::PrepareQueue()
 {
 }

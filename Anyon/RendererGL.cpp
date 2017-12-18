@@ -3,14 +3,6 @@
 
 using namespace Anyon;
 
-RendererGL::RendererGL()
-{
-}
-
-RendererGL::~RendererGL()
-{
-}
-
 Renderer::RendererType RendererGL::UnderlyingRenderer()
 {
     return OpenGL4_1Core;

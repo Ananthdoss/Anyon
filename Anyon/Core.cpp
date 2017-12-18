@@ -1,7 +1,8 @@
-#include <cassert>
 #include "Core.hpp"
+#include <cassert>
 #include "utils.hpp"
 #include "Renderer.hpp"
+#include "ResourceManager.hpp"
 
 using namespace Anyon;
 using namespace std;
@@ -36,6 +37,7 @@ void Core::Initialize()
 void Core::Finalize()
 {
     app->Finalize();
+    ResourceManager::Instance()->ReleaseAll();
 }
 
 bool Core::MainLoop()
