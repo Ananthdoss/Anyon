@@ -4,7 +4,9 @@
 
 Game::Game()
 {
+#ifndef DNDEBUG
     Core::config.vsync = false;
+#endif
 }
 
 Game::~Game()

@@ -6,7 +6,7 @@
 
 namespace Anyon
 {
-    inline auto GetPerfTimer() noexcept
+    inline auto GetPerfTimer()
     {
         using namespace std::chrono;
         typedef std::conditional_t<high_resolution_clock::is_steady, high_resolution_clock, steady_clock> clock;
@@ -14,7 +14,7 @@ namespace Anyon
     }
     
     template<class Duration>
-    inline auto GetPerfTimer() noexcept
+    inline auto GetPerfTimer()
     {
         return std::chrono::duration_cast<Duration>(GetPerfTimer());
     }

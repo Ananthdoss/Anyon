@@ -1,14 +1,16 @@
 #pragma once
 
+#include <cstdint>
+
 namespace Anyon
 {
-    enum KeyCode : unsigned char;
+    enum class KeyCode : uint8_t;
     
     class PlatformWrapper
     {
     public:
-        enum MouseButton {Left, Right};
-#ifdef __APPLE__
+        enum class MouseButton {Left, Right};
+#ifdef ANYON_APPLE
         void SetInterlayerInstanceId(/*CoreInterlayer*/void *id);
 #endif
         virtual void Initialize() = 0;
@@ -28,7 +30,7 @@ namespace Anyon
         void FatalAlert(const char *message);
         
     private:
-#ifdef __APPLE__
+#ifdef ANYON_APPLE
         /*CoreInterlayer*/void *interlayerId;
 #endif
     };

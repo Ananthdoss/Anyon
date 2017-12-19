@@ -22,23 +22,23 @@ namespace Anyon
         typedef float (&ref)[4];
         typedef const float (&cref)[4];
         
-        inline Color(): r(1.f), g(1.f), b(1.f), a(1.f){}
+        inline constexpr Color():
+        r(1.f), g(1.f), b(1.f), a(1.f) {}
         
-        inline Color(uint32_t rgba):
+        inline constexpr Color(uint32_t rgba):
         r((float)(rgba & 0xFF) / 0xFF),
         g((float)((rgba >> 8) & 0xFF) / 0xFF),
         b((float)((rgba >> 16) & 0xFF) / 0xFF),
-        a((float)((rgba >> 24) & 0xFF) / 0xFF){}
+        a((float)((rgba >> 24) & 0xFF) / 0xFF) {}
         
-        inline Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
-        {
-            Color::r = r / 255.f; Color::g = g / 255.f; Color::b = b / 255.f; Color::a = a / 255.f;
-        }
+        inline constexpr Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a):
+        r(r / 255.f), g(g / 255.f), b(b / 255.f), a(a / 255.f) {}
         
-        inline Color(cref rgba)
-        {
-            memcpy(Color::rgba, rgba, sizeof rgba);
-        }
+        inline constexpr Color(cref rgba):
+        r(rgba[0]), g(rgba[1]), b(rgba[2]), a(rgba[3]) {}
+        
+        inline Color(Color &&) = default;
+        inline Color(const Color &) = default;
         
         inline void Normalize()
         {
@@ -48,7 +48,25 @@ namespace Anyon
             std::clamp(a, 0.f, 1.f);
         }
         
-        inline Color &operator += (const Color &col)
+        inline Color& operator = (const Color &) = default;
+        inline Color& operator = (Color &&) = default;
+        
+        inline bool operator == (Color src) const
+        {
+            return r == src.r && g == src.g && b == src.b && a == src.a;
+        }
+        
+        inline operator ref ()
+        {
+            return rgba;
+        }
+        
+        inline operator cref () const
+        {
+            return rgba;
+        }
+        
+        inline Color& operator += (Color col)
         {
             r += col.r;
             g += col.g;
@@ -57,12 +75,12 @@ namespace Anyon
             return *this;
         }
         
-        inline Color operator + (const Color &col) const
+        inline Color operator + (Color col) const
         {
-            return Color(*this) += col;
+            return (Color)*this += col;
         }
         
-        inline Color &operator *= (const Color &col)
+        inline Color& operator *= (Color col)
         {
             r *= col.r;
             g *= col.g;
@@ -71,9 +89,9 @@ namespace Anyon
             return *this;
         }
         
-        inline Color operator * (const Color &col) const
+        inline Color operator * (Color col) const
         {
-            return Color(*this) *= col;
+            return (Color)*this *= col;
         }
         
         inline operator uint32_t() const
@@ -89,54 +107,39 @@ namespace Anyon
             return s.str();
         }
         
-        friend std::ostream& operator << (std::ostream& stream, const Color& col)
+        friend std::ostream& operator << (std::ostream &stream, Color col)
         {
             stream << (std::string)col;
             return stream;
         }
-        
-        inline operator ref ()
-        {
-            return rgba;
-        }
-        
-        inline operator cref () const
-        {
-            return rgba;
-        }
-        
-        inline bool operator ==(const Color &src) const
-        {
-            return r == src.r && g == src.g && b == src.b && a == src.a;
-        }
     };
     
-    inline Color ColorClear() { return Color(0x00, 0x00, 0x00, 0); }
-    inline Color ColorWhite(uint8_t alpha = 255) { return Color(0xFF, 0xFF, 0xFF, alpha); }
-    inline Color ColorBlack(uint8_t alpha = 255) { return Color(0x00, 0x00, 0x00, alpha); }
-    inline Color ColorRed(uint8_t alpha = 255) { return Color(0xFF, 0x00, 0x00, alpha); }
-    inline Color ColorGreen(uint8_t alpha = 255) { return Color(0x00, 0xFF, 0x00, alpha); }
-    inline Color ColorBlue(uint8_t alpha = 255) { return Color(0x00, 0x00, 0xFF, alpha); }
+    static inline constexpr Color colorNone(0x00, 0x00, 0x00, 0);
+    static inline constexpr Color colorWhite(0xFF, 0xFF, 0xFF, 0xFF);
+    static inline constexpr Color colorBlack(0x00, 0x00, 0x00, 0xFF);
+    static inline constexpr Color colorRed(0xFF, 0x00, 0x00, 0xFF);
+    static inline constexpr Color colorGreen(0x00, 0xFF, 0x00, 0xFF);
+    static inline constexpr Color colorBlue(0x00, 0x00, 0xFF, 0xFF);
     
-    inline Color ColorAqua(uint8_t alpha = 255) { return Color(0x00, 0xFF, 0xFF, alpha); }
-    inline Color ColorBrown(uint8_t alpha = 255) { return Color(0xA5, 0x2A, 0x2A, alpha); }
-    inline Color ColorCyan(uint8_t alpha = 255) { return Color(0x00, 0xFF, 0xFF, alpha); }
-    inline Color ColorFuchsia(uint8_t alpha = 255) { return Color(0xFF, 0x00, 0xFF, alpha); }
-    inline Color ColorGray(uint8_t alpha = 255) { return Color(0x80, 0x80, 0x80, alpha); }
-    inline Color ColorMagenta(uint8_t alpha = 255) { return Color(0xFF, 0x00, 0xFF, alpha); }
-    inline Color ColorMaroon(uint8_t alpha = 255) { return Color(0x80, 0x00, 0x00, alpha); }
-    inline Color ColorNavy(uint8_t alpha = 255) { return Color(0x00, 0x00, 0x80, alpha); }
-    inline Color ColorOlive(uint8_t alpha = 255) { return Color(0x80, 0x80, 0x00, alpha); }
-    inline Color ColorOrange(uint8_t alpha = 255) { return Color(0xFF, 0xA5, 0x00, alpha); }
-    inline Color ColorPink(uint8_t alpha = 255) { return Color(0xFF, 0xC0, 0xCB, alpha); }
-    inline Color ColorPurple(uint8_t alpha = 255) { return Color(0x80, 0x00, 0x80, alpha); }
-    inline Color ColorSilver(uint8_t alpha = 255) { return Color(0xC0, 0xC0, 0xC0, alpha); }
-    inline Color ColorTeal(uint8_t alpha = 255) { return Color(0x00, 0x80, 0x80, alpha); }
-    inline Color ColorViolet(uint8_t alpha = 255) { return Color(0xEE, 0x82, 0xEE, alpha); }
-    inline Color ColorYellow(uint8_t alpha = 255) { return Color(0xFF, 0xFF, 0x00, alpha); }
+    static inline constexpr Color colorAqua(0x00, 0xFF, 0xFF, 0xFF);
+    static inline constexpr Color colorBrown(0xA5, 0x2A, 0x2A, 0xFF);
+    static inline constexpr Color colorCyan(0x00, 0xFF, 0xFF, 0xFF);
+    static inline constexpr Color colorFuchsia(0xFF, 0x00, 0xFF, 0xFF);
+    static inline constexpr Color colorGray(0x80, 0x80, 0x80, 0xFF);
+    static inline constexpr Color colorMagenta(0xFF, 0x00, 0xFF, 0xFF);
+    static inline constexpr Color colorMaroon(0x80, 0x00, 0x00, 0xFF);
+    static inline constexpr Color colorNavy(0x00, 0x00, 0x80, 0xFF);
+    static inline constexpr Color colorOlive(0x80, 0x80, 0x00, 0xFF);
+    static inline constexpr Color colorOrange(0xFF, 0xA5, 0x00, 0xFF);
+    static inline constexpr Color colorPink(0xFF, 0xC0, 0xCB, 0xFF);
+    static inline constexpr Color colorPurple(0x80, 0x00, 0x80, 0xFF);
+    static inline constexpr Color colorSilver(0xC0, 0xC0, 0xC0, 0xFF);
+    static inline constexpr Color colorTeal(0x00, 0x80, 0x80, 0xFF);
+    static inline constexpr Color colorViolet(0xEE, 0x82, 0xEE, 0xFF);
+    static inline constexpr Color colorYellow(0xFF, 0xFF, 0x00, 0xFF);
     
-    static const float toRad = (float)M_PI / 180.f;
-    static const float toDeg = 180.f / (float)M_PI;
+    static constexpr float toRad = (float)M_PI / 180.f;
+    static constexpr float toDeg = 180.f / (float)M_PI;
     
     struct Vector2
     {
@@ -152,51 +155,70 @@ namespace Anyon
         typedef float (&ref)[2];
         typedef const float (&cref)[2];
         
-        inline Vector2(): x(0.f), y(0.f){}
-        inline Vector2(const float *f): x(f[0]), y(f[1]){}
-        inline Vector2(float x, float y): x(x), y(y){}
-        inline Vector2(cref xy)
+        inline constexpr Vector2():
+        x(0.f), y(0.f) {}
+        
+        inline constexpr Vector2(const float *f):
+        x(f[0]), y(f[1]) {}
+        
+        inline constexpr Vector2(float x, float y):
+        x(x), y(y){}
+        
+        inline constexpr Vector2(cref xy):
+        x(xy[0]), y(xy[1]) {}
+        
+        inline Vector2(Vector2 &&) = default;
+        inline Vector2(const Vector2 &) = default;
+        inline Vector2& operator = (const Vector2 &) = default;
+        inline Vector2& operator = (Vector2 &&) = default;
+        
+        inline operator ref ()
         {
-            memcpy(Vector2::xy, xy, sizeof xy);
+            return xy;
         }
         
-        inline Vector2 &operator += (const Vector2 &vec)
+        inline operator cref () const
+        {
+            return xy;
+        }
+        
+        inline Vector2& operator += (Vector2 vec)
         {
             x += vec.x;
             y += vec.y;
             return *this;
         }
         
-        inline Vector2 operator + (const Vector2 &vec) const
+        inline Vector2 operator + (Vector2 vec) const
         {
-            return Vector2(*this) += vec;
+            return (Vector2)*this += vec;
         }
         
-        inline Vector2 &operator -= (const Vector2 &vec)
+        inline Vector2& operator -= (Vector2 vec)
         {
             x -= vec.x;
             y -= vec.y;
             return *this;
         }
         
-        inline Vector2 operator - (const Vector2 &vec) const
+        inline Vector2 operator - (Vector2 vec) const
         {
-            return Vector2(*this) -= vec;
+            return (Vector2)*this -= vec;
         }
         
-        inline Vector2 &operator *= (const Vector2 &vec)
+        inline Vector2& operator *= (Vector2 vec)
         {
             x *= vec.x;
             y *= vec.y;
             return *this;
         }
         
-        inline Vector2 operator * (const Vector2 &vec) const
+        inline Vector2 operator * (Vector2 vec) const
         {
-            return Vector2(*this) *= vec;
+            return (Vector2)*this *= vec;
         }
         
-        inline Vector2 &operator *= (float val)
+        inline Vector2& operator *= (float val)
         {
             x *= val;
             y *= val;
@@ -205,10 +227,10 @@ namespace Anyon
         
         inline Vector2 operator * (float val) const
         {
-            return Vector2(*this) *= val;
+            return (Vector2)*this *= val;
         }
         
-        inline Vector2 &operator /= (const Vector2 &vec)
+        inline Vector2& operator /= (Vector2 vec)
         {
             x /= vec.x;
             y /= vec.y;
@@ -217,10 +239,10 @@ namespace Anyon
         
         inline Vector2 operator / (const Vector2 &vec) const
         {
-            return Vector2(*this) /= vec;
+            return (Vector2)*this /= vec;
         }
         
-        inline Vector2 &operator /= (float val)
+        inline Vector2& operator /= (float val)
         {
             x /= val;
             y /= val;
@@ -232,22 +254,22 @@ namespace Anyon
             return Vector2(*this) /= val;
         }
         
-        inline float Dot(const Vector2 &vec) const
+        inline float Dot(Vector2 vec) const
         {
             return x * vec.x + y * vec.y;
         }
         
-        inline float Cross(const Vector2 &vec) const
+        inline float Cross(Vector2 vec) const
         {
             return x * vec.y - vec.x * y;
         }
         
-        inline float DistTo(const Vector2 &vec) const
+        inline float DistTo(Vector2 vec) const
         {
             return std::hypot(vec.x - x, vec.y - y);
         }
         
-        inline float DistToQ(const Vector2 &vec) const
+        inline float DistToQ(Vector2 vec) const
         {
             return (vec - *this).LengthQ();
         }
@@ -262,19 +284,19 @@ namespace Anyon
             return std::hypot(x, y);
         }
         
-        inline Vector2 &Normalize()
+        inline Vector2& Normalize()
         {
             const float len = Length();
             x /= len, y /= len;
             return *this;
         }
         
-        inline Vector2 Lerp(const Vector2 &vec, float coeff) const
+        inline Vector2 Lerp(Vector2 vec, float coeff) const
         {
             return *this + (vec - *this) * coeff;
         }
         
-        inline float Angle(const Vector2 &vec) const
+        inline float Angle(Vector2 vec) const
         {
             return std::atan2(y - vec.y, x - vec.x);
         }
@@ -285,7 +307,7 @@ namespace Anyon
             return Vector2(x * c - y * s, x * s + y * c);
         }
         
-        inline Vector2 Reflect(const Vector2 &normal) const
+        inline Vector2 Reflect(Vector2 normal) const
         {
             return *this - normal * (2.f * Dot(normal));
         }
@@ -298,20 +320,10 @@ namespace Anyon
             return s.str();
         }
         
-        friend std::ostream& operator << (std::ostream& stream, const Vector2& vec)
+        friend std::ostream& operator << (std::ostream &stream, Vector2 vec)
         {
             stream << (std::string)vec;
             return stream;
-        }
-        
-        inline operator ref ()
-        {
-            return xy;
-        }
-        
-        inline operator cref () const
-        {
-            return xy;
         }
     };
     
@@ -329,27 +341,47 @@ namespace Anyon
         typedef float (&ref)[4];
         typedef const float (&cref)[4];
         
-        inline Rectangle(): x(0.f), y(0.f), width(0.f), height(0.f){}
-        inline Rectangle(float x, float y, float width, float height): x(x), y(y), width(width), height(height){}
-        inline Rectangle(const Vector2 &vecLeftTop, const Vector2 &vecRightBottom): x(vecLeftTop.x), y(vecLeftTop.y), width(vecRightBottom.x - vecLeftTop.x), height(vecRightBottom.y - vecLeftTop.y){}
+        inline constexpr Rectangle():
+        x(0.f), y(0.f), width(0.f), height(0.f) {}
         
-        inline bool Intersects(const Rectangle &rect) const
+        inline constexpr Rectangle(float x, float y, float width, float height):
+        x(x), y(y), width(width), height(height) {}
+        
+        inline constexpr Rectangle(const Vector2 &vecLeftTop, const Vector2 &vecRightBottom):
+        x(vecLeftTop.x), y(vecLeftTop.y), width(vecRightBottom.x - vecLeftTop.x), height(vecRightBottom.y - vecLeftTop.y) {}
+        
+        inline Rectangle(Rectangle &&) = default;
+        inline Rectangle(const Rectangle &) = default;
+        inline Rectangle& operator = (const Rectangle &) = default;
+        inline Rectangle& operator = (Rectangle &&) = default;
+        
+        inline operator ref ()
+        {
+            return rect;
+        }
+        
+        inline operator cref () const
+        {
+            return rect;
+        }
+        
+        inline bool Intersects(Rectangle rect) const
         {
             return (x < rect.x + rect.width && x + width > rect.x && y < rect.y + rect.height && y + height > rect.y) ||
             (rect.x + rect.width < x && rect.x > x + width && rect.y + rect.height < y && rect.y > y + height);
         }
         
-        inline bool Include(const Vector2 &vec) const
+        inline bool Include(Vector2 vec) const
         {
             return vec.x > x && vec.x < x + width && vec.y > y && vec.y < y + height;
         }
         
-        inline bool Include(const Rectangle &rect) const
+        inline bool Include(Rectangle rect) const
         {
             return rect.x < x && rect.y < y && rect.x + rect.width > x + width && rect.y + rect.height > y + height;
         }
         
-        inline Rectangle Intersection(const Rectangle &rect) const
+        inline Rectangle Intersection(Rectangle rect) const
         {
             if (Intersects(rect))
             {
@@ -378,20 +410,10 @@ namespace Anyon
             return s.str();
         }
         
-        friend std::ostream& operator << (std::ostream& stream, const Rectangle& rec)
+        friend std::ostream& operator << (std::ostream &stream, Rectangle rec)
         {
             stream << (std::string)rec;
             return stream;
-        }
-        
-        inline operator ref ()
-        {
-            return rect;
-        }
-        
-        inline operator cref () const
-        {
-            return rect;
         }
     };
     
@@ -409,15 +431,34 @@ namespace Anyon
         typedef float (&ref)[3];
         typedef const float (&cref)[3];
         
-        inline Vector3(): x(0.f), y(0.f), z(0.f){}
-        inline Vector3(const float *f): x(f[0]), y(f[1]), z(f[2]){}
-        inline Vector3(float x, float y, float z): x(x), y(y), z(z){}
-        inline Vector3(cref xyz)
+        inline Vector3():
+        x(0.f), y(0.f), z(0.f) {}
+        
+        inline Vector3(const float *f):
+        x(f[0]), y(f[1]), z(f[2]) {}
+        
+        inline Vector3(float x, float y, float z):
+        x(x), y(y), z(z) {}
+        
+        inline Vector3(cref xyz):
+        x(xyz[0]), y(xyz[1]), z(xyz[2]) {}
+        
+        inline Vector3(Vector3 &&) = default;
+        inline Vector3(const Vector3 &) = default;
+        inline Vector3& operator = (const Vector3 &) = default;
+        inline Vector3& operator = (Vector3 &&) = default;
+        
+        inline operator ref ()
         {
-            memcpy(Vector3::xyz, xyz, sizeof xyz);
+            return xyz;
         }
         
-        inline Vector3 &operator += (const Vector3 &vec)
+        inline operator cref () const
+        {
+            return xyz;
+        }
+        
+        inline Vector3 &operator += (Vector3 vec)
         {
             x += vec.x;
             y += vec.y;
@@ -425,12 +466,12 @@ namespace Anyon
             return *this;
         }
         
-        inline Vector3 operator + (const Vector3 &vec) const
+        inline Vector3 operator + (Vector3 vec) const
         {
-            return Vector3(*this) += vec;
+            return (Vector3)*this += vec;
         }
         
-        inline Vector3 &operator -= (const Vector3 &vec)
+        inline Vector3& operator -= (Vector3 vec)
         {
             x -= vec.x;
             y -= vec.y;
@@ -438,12 +479,12 @@ namespace Anyon
             return *this;
         }
         
-        inline Vector3 operator - (const Vector3 &vec) const
+        inline Vector3 operator - (Vector3 vec) const
         {
-            return Vector3(*this) -= vec;
+            return (Vector3)*this -= vec;
         }
         
-        inline Vector3 &operator *= (const Vector3 &vec)
+        inline Vector3& operator *= (Vector3 vec)
         {
             x *= vec.x;
             y *= vec.y;
@@ -451,12 +492,12 @@ namespace Anyon
             return *this;
         }
         
-        inline Vector3 operator * (const Vector3 &vec) const
+        inline Vector3 operator * (Vector3 vec) const
         {
-            return Vector3(*this) *= vec;
+            return (Vector3)*this *= vec;
         }
         
-        inline Vector3 &operator *= (float val)
+        inline Vector3& operator *= (float val)
         {
             x *= val;
             y *= val;
@@ -466,10 +507,10 @@ namespace Anyon
         
         inline Vector3 operator * (float val) const
         {
-            return Vector3(*this) *= val;
+            return (Vector3)*this *= val;
         }
         
-        inline Vector3 &operator /= (const Vector3 &vec)
+        inline Vector3& operator /= (Vector3 vec)
         {
             x /= vec.x;
             y /= vec.y;
@@ -477,12 +518,12 @@ namespace Anyon
             return *this;
         }
         
-        inline Vector3 operator / (const Vector3 &vec) const
+        inline Vector3 operator / (Vector3 vec) const
         {
-            return Vector3(*this) /= vec;
+            return (Vector3)*this /= vec;
         }
         
-        inline Vector3 &operator /= (float val)
+        inline Vector3& operator /= (float val)
         {
             x /= val;
             y /= val;
@@ -492,30 +533,30 @@ namespace Anyon
         
         inline Vector3 operator / (float val) const
         {
-            return Vector3(*this) /= val;
+            return (Vector3)*this /= val;
         }
         
-        inline float Dot(const Vector3 &vec) const
+        inline float Dot(Vector3 vec) const
         {
             return x * vec.x + y * vec.y + z * vec.z;
         }
         
-        inline Vector3 Cross(const Vector3 &vec) const
+        inline Vector3 Cross(Vector3 vec) const
         {
             return Vector3(y * vec.z - z * vec.y, z * vec.x - x * vec.z, x * vec.y - y * vec.x);
         }
         
-        inline float FlatDistance(const Vector3 &vec) const
+        inline float FlatDistance(Vector3 vec) const
         {
             return std::hypot(vec.x - x, vec.y - y);
         }
         
-        inline float Distance(const Vector3 &vec) const
+        inline float Distance(Vector3 vec) const
         {
             return std::hypot(vec.x - x, vec.y - y, vec.z - z);
         }
         
-        inline float DistanceQ(const Vector3 &vec) const
+        inline float DistanceQ(Vector3 vec) const
         {
             return (vec - *this).LengthQ();
         }
@@ -530,24 +571,24 @@ namespace Anyon
             return std::hypot(x, y, z);
         }
         
-        inline Vector3 &Normalize()
+        inline Vector3& Normalize()
         {
             const float len = Length();
             x /= len, y /= len; z /= len;
             return *this;
         }
         
-        inline Vector3 Lerp(const Vector3 &point, float coeff) const
+        inline Vector3 Lerp(Vector3 vec, float coeff) const
         {
-            return *this + (point - *this) * coeff;
+            return *this + (vec - *this) * coeff;
         }
         
-        inline float Angle(const Vector3 &vec) const
+        inline float Angle(Vector3 vec) const
         {
             return std::acos(Dot(vec) / std::sqrt(LengthQ() * vec.LengthQ()));
         }
         
-        inline Vector3 Rotate(float fAngle, const Vector3 &axis) const
+        inline Vector3 Rotate(float fAngle, Vector3 axis) const
         {
             const float s = std::sin(fAngle), c = std::cos(fAngle);
             
@@ -559,7 +600,7 @@ namespace Anyon
             return Vector3(v[0].x + v[1].x * c + v[2].x * s, v[0].y + v[1].y * c + v[2].y * s, v[0].z + v[1].z * c + v[2].z * s);
         }
         
-        inline Vector3 Reflect(const Vector3 &normal) const
+        inline Vector3 Reflect(Vector3 normal) const
         {
             return *this - normal * (2.f * Dot(normal));
         }
@@ -572,20 +613,10 @@ namespace Anyon
             return s.str();
         }
         
-        friend std::ostream& operator << (std::ostream& stream, const Vector3& vec)
+        friend std::ostream& operator << (std::ostream &stream, const Vector3 &vec)
         {
             stream << (std::string)vec;
             return stream;
-        }
-        
-        inline operator ref ()
-        {
-            return xyz;
-        }
-        
-        inline operator cref () const
-        {
-            return xyz;
         }
     };
     
@@ -617,84 +648,94 @@ namespace Anyon
             _2D[3][0] = _30; _2D[3][1] = _31; _2D[3][2] = _32; _2D[3][3] = _33;
         }
         
-        inline Matrix4 &operator +=(float right)
+        inline operator ref ()
+        {
+            return _1D;
+        }
+        
+        inline operator cref () const
+        {
+            return _1D;
+        }
+        
+        inline Matrix4& operator += (float right)
         {
             for (int i = 0; i < 16; ++i)
                 _1D[i] += right;
             return *this;
         }
         
-        inline Matrix4 &operator -=(float right)
+        inline Matrix4& operator -= (float right)
         {
             for (int i = 0; i < 16; ++i)
                 _1D[i] -= right;
             return *this;
         }
         
-        inline Matrix4 &operator *=(float right)
+        inline Matrix4& operator *= (float right)
         {
             for (int i = 0; i < 16; ++i)
                 _1D[i] *= right;
             return *this;
         }
         
-        inline Matrix4 &operator /=(float right)
+        inline Matrix4& operator /= (float right)
         {
             for (int i = 0; i < 16; ++i)
                 _1D[i] /= right;
             return *this;
         }
         
-        inline Matrix4 &operator +=(const Matrix4 &right)
+        inline Matrix4& operator += (const Matrix4 &right)
         {
             for (int i = 0; i < 16; ++i)
                 _1D[i] += right._1D[i];
             return *this;
         }
         
-        inline Matrix4 &operator -=(const Matrix4 &right)
+        inline Matrix4& operator -= (const Matrix4 &right)
         {
             for (int i = 0; i < 16; ++i)
                 _1D[i] -= right._1D[i];
             return *this;
         }
         
-        inline Matrix4 &operator *=(const Matrix4 &right)
+        inline Matrix4& operator *= (const Matrix4 &right)
         {
             return *this = *this * right;
         }
         
-        inline Matrix4 operator +(float right) const
+        inline Matrix4 operator + (float right) const
         {
             return Matrix4(*this) += right;
         }
         
-        inline Matrix4 operator -(float right) const
+        inline Matrix4 operator - (float right) const
         {
             return Matrix4(*this) -= right;
         }
         
-        inline Matrix4 operator *(float right) const
+        inline Matrix4 operator * (float right) const
         {
             return Matrix4(*this) *= right;
         }
         
-        inline Matrix4 operator /(float right) const
+        inline Matrix4 operator / (float right) const
         {
             return Matrix4(*this) /= right;
         }
         
-        inline Matrix4 operator +(const Matrix4 &right) const
+        inline Matrix4 operator + (const Matrix4 &right) const
         {
             return Matrix4(*this) += right;
         }
         
-        inline Matrix4 operator -(const Matrix4 &right) const
+        inline Matrix4 operator - (const Matrix4 &right) const
         {
             return Matrix4(*this) -= right;
         }
         
-        inline Matrix4 operator *(const Matrix4 &right) const
+        inline Matrix4 operator * (const Matrix4 &right) const
         {
             Matrix4 product;
             
@@ -718,7 +759,7 @@ namespace Anyon
             return product;
         }
         
-        inline Vector3 ApplyToVector(const Vector3 &vec) const
+        inline Vector3 ApplyToVector(Vector3 vec) const
         {
             return Vector3(vec.xyz[0] * _2D[0][0] + vec.xyz[1] * _2D[1][0] + vec.xyz[2] * _2D[2][0],
                            vec.xyz[0] * _2D[0][1] + vec.xyz[1] * _2D[1][1] + vec.xyz[2] * _2D[2][1],
@@ -832,7 +873,7 @@ namespace Anyon
                            0.f, 0.f, 0.f, 1.f);
         }
         
-        static inline Matrix4 MatrixScale(const Vector3 &vec)
+        static inline Matrix4 MatrixScale(Vector3 vec)
         {
             return Matrix4(
                            vec.x, 0.f, 0.f, 0.f,
@@ -841,7 +882,7 @@ namespace Anyon
                            0.f, 0.f, 0.f, 1.f);
         }
         
-        static inline Matrix4 MatrixTranslate(const Vector3 &vec)
+        static inline Matrix4 MatrixTranslate(Vector3 vec)
         {
             return Matrix4(
                            1.f, 0.f, 0.f, 0.f,
@@ -850,15 +891,14 @@ namespace Anyon
                            vec.x, vec.y, vec.z, 1.f);
         }
         
-        static inline Matrix4 MatrixRotate(float angle, const Vector3 &axis)
+        static inline Matrix4 MatrixRotate(float angle, Vector3 axis)
         {
-            Vector3 v = axis;
-            v.Normalize();
+            axis.Normalize();
             const float s = std::sin(angle), c = std::cos(angle), t = 1.f - c;
             return Matrix4(
-                           (1.f - v.x * v.x) * c + v.x * v.x,   v.z * s + v.x * v.y * t,            v.x * v.z * t - v.y * s,            0.f,
-                           v.x * v.y * t - v.z * s,             (1.f - v.y * v.y) * c + v.y * v.y,  v.y * v.z * t + v.x * s,            0.f,
-                           v.x * v.z * t + v.y * s,             v.y * v.z * t - v.x * s,            (1.f - v.z * v.z) * c + v.z * v.z,  0.f,
+                           (1.f - axis.x * axis.x) * c + axis.x * axis.x,   axis.z * s + axis.x * axis.y * t,               axis.x * axis.z * t - axis.y * s,               0.f,
+                           axis.x * axis.y * t - axis.z * s,                (1.f - axis.y * axis.y) * c + axis.y * axis.y,  axis.y * axis.z * t + axis.x * s,               0.f,
+                           axis.x * axis.z * t + axis.y * s,                axis.y * axis.z * t - axis.x * s,               (1.f - axis.z * axis.z) * c + axis.z * axis.z,  0.f,
                            0.f, 0.f, 0.f, 1.f);
         }
         
@@ -874,20 +914,10 @@ namespace Anyon
             return s.str();
         }
         
-        friend std::ostream& operator << (std::ostream& stream, const Matrix4& mat)
+        friend std::ostream& operator << (std::ostream &stream, const Matrix4 &mat)
         {
             stream << (std::string)mat;
             return stream;
-        }
-        
-        inline operator ref ()
-        {
-            return _1D;
-        }
-        
-        inline operator cref () const
-        {
-            return _1D;
         }
     };
 }

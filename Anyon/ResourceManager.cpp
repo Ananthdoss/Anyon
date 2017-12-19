@@ -3,15 +3,19 @@
 
 using namespace Anyon;
 
-ResourceManager::Resource::Resource(const std::string &name)
+ResourceManager::Resource::Resource(const std::string &name, ResourceManager *resMan):
+resMan(resMan)
 {
+    assert(resMan != nullptr); // Can not be null!
+    
     this->name = name;
-    ResourceManager::Instance()->AddResource(this);
+    resMan->AddResource(this);
 }
 
 ResourceManager::Resource::~Resource()
 {
     assert(refs < 2); // Trying to delete resource that is still acquired!
+    resMan->RemoveResource(this);
 }
 
 const std::string& ResourceManager::Resource::Name() const
@@ -33,12 +37,6 @@ void ResourceManager::Resource::Release()
 unsigned ResourceManager::Resource::References() const
 {
     return refs;
-}
-
-ResourceManager* ResourceManager::Instance()
-{
-    static ResourceManager instance;
-    return &instance;
 }
 
 ResourceManager::Resource* ResourceManager::Find(const std::string &name) const
@@ -77,4 +75,3 @@ void ResourceManager::ReleaseAll()
     
     resources.clear();
 }
-

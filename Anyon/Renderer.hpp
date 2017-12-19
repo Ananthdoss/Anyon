@@ -1,34 +1,39 @@
 #pragma once
 
+#if defined(ANYON_MAC) && defined(ANYON_GL)
+#include <OpenGL/gl3.h>
+#endif
+
 #include "types.hpp"
 
 namespace Anyon
 {
     class Renderer
     {
-        friend class RendererGL;
+        friend class Core;
         
     public:
-        static Renderer* Instance();
-        
-        virtual void PrepareQueue();
-        virtual void CompleteQueue();
-        virtual void SetDefaultStates();
-        virtual void SetViewport(int x, int y, unsigned width, unsigned height);
-        virtual void Clear(bool color, bool depth, bool stencil);
-        virtual void ClearColor(const Color &col);
-        virtual Color ClearColor();
-        
-        enum RendererType { OpenGL4_1Core };
-        virtual RendererType UnderlyingRenderer() = 0;
+        void PrepareQueue();
+        void CompleteQueue();
+        void SetDefaultStates();
+        void Clear(bool color, bool depth, bool stencil);
+        void ClearColor(Color col);
+        Color ClearColor();
         
         Renderer(Renderer const &) = delete;
         Renderer& operator = (Renderer const &) = delete;
+        Renderer& operator = (Renderer &&) = delete;
         
     private:
-        Color colorClear = ColorClear();
-        
-        virtual ~Renderer(){};
+        ~Renderer(){};
         Renderer(){};
+        
+        Color colorClear = colorNone;
+        
+        void ResizeViewport(unsigned width, unsigned height);
+        
+#ifdef ANYON_GL
+        
+#endif
     };
 }

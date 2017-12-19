@@ -3,18 +3,20 @@
 #include <string>
 #include <chrono>
 #include "PlatformWrapper.hpp"
+#include "Renderer.hpp"
+#include "ResourceManager.hpp"
 
 namespace Anyon
 {
     class Renderer;
     
-    enum KeyCode : unsigned char;
+    enum class KeyCode : uint8_t;
     
     struct Mouse
     {
         int x;
         int y;
-        int wheel;
+        int wheelDelta;
         bool left;
         bool right;
     };
@@ -24,6 +26,8 @@ namespace Anyon
     public:
         class Application
         {
+            friend class Core;
+            
         public:
             virtual void Initiaize() = 0;
             virtual void Finalize() = 0;
@@ -31,9 +35,13 @@ namespace Anyon
             virtual void Activate(){};
             virtual void Deactivate(){};
             virtual ~Application(){};
+            
+        protected:
+            inline Core* Core() const;
+            
+        private:
+            class Core *core;
         };
-        
-        static Core* Instance();
         
         struct Configuration
         {
@@ -44,8 +52,8 @@ namespace Anyon
             bool fsaa = true;
         };
         static Configuration config;
+        static Core* Start(Application *app);
         
-        void Start(Application *app);
         void Stop();
         bool Pause = false;
         void Reconfigure();
@@ -56,11 +64,18 @@ namespace Anyon
         bool KeyPressed(KeyCode key) const;
         void ShowCursor(bool visible);
         
+        inline class ResourceManager* ResourceManager();
+        inline class Renderer* Renderer();
+
         Core(Core const &) = delete;
         Core& operator = (Core const &) = delete;
+        Core& operator = (Core &&) = delete;
         
     private:
         Application *app = nullptr;
+        
+        class Renderer renderer;
+        class ResourceManager resMan;
         
         bool stopFlag = false;
         bool keys[256];
@@ -71,7 +86,7 @@ namespace Anyon
         unsigned fpsCount;
         unsigned fps = 0;
         
-        Core();
+        Core(Application *app);
         ~Core(){};
         
         void Initialize() final;
@@ -86,7 +101,7 @@ namespace Anyon
         void MouseWheel(int delta) final;
     };
     
-    enum KeyCode : unsigned char
+    enum class KeyCode : uint8_t
     {
         KEY_UNKNOWN         = 0x00,
         KEY_ESCAPE          = 0x01,

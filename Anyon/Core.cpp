@@ -1,30 +1,39 @@
 #include "Core.hpp"
 #include <cassert>
 #include "utils.hpp"
-#include "Renderer.hpp"
-#include "ResourceManager.hpp"
 
 using namespace Anyon;
 using namespace std;
 using namespace chrono;
 
-Core::Configuration Core::config;
-
-Core* Core::Instance()
+Core* Core::Application::Core() const
 {
-    static Core instance;
-    return &instance;
+    return core;
 }
 
-Core::Core()
+Core::Configuration Core::config;
+
+Core::Core(Application *app):
+app(app)
 {
     memset(&keys, 0, 256);
     memset(&mouse, 0, sizeof(Mouse));
+    app->core = this;
+}
+
+ResourceManager* Core::ResourceManager()
+{
+    return &resMan;
+}
+
+Renderer* Core::Renderer()
+{
+    return &renderer;
 }
 
 void Core::Initialize()
 {
-    Renderer::Instance()->SetDefaultStates();
+    renderer.SetDefaultStates();
     
     app->Initiaize();
     
@@ -37,7 +46,7 @@ void Core::Initialize()
 void Core::Finalize()
 {
     app->Finalize();
-    ResourceManager::Instance()->ReleaseAll();
+    resMan.ReleaseAll();
 }
 
 bool Core::MainLoop()
@@ -53,11 +62,10 @@ bool Core::MainLoop()
     
     if (!Pause)
     {
-        auto *r = Renderer::Instance();
-        r->CompleteQueue();
-        r->Clear(true, true, true);
+        renderer.CompleteQueue();
+        renderer.Clear(true, true, true);
         app->Update((time - lastUpdateTime).count() / 1000.0);
-        r->CompleteQueue();
+        renderer.CompleteQueue();
     }
     
     lastUpdateTime = time;
@@ -68,7 +76,7 @@ bool Core::MainLoop()
 
 void Core::Resize(unsigned width, unsigned height)
 {
-    Renderer::Instance()->SetViewport(0, 0, width, height);
+    renderer.ResizeViewport(width, height);
 }
 
 void Core::Activate()
@@ -83,7 +91,7 @@ void Core::Deactivate()
 
 void Core::SetKey(KeyCode key, bool pressed)
 {
-    keys[key] = pressed;
+    keys[(uint8_t)key] = pressed;
 }
 
 void Core::MouseMove(int x, int y)
@@ -96,10 +104,10 @@ void Core::MouseButton(enum MouseButton button, bool pressed)
 {
     switch (button)
     {
-        case Left:
+        case MouseButton::Left:
             mouse.left = pressed;
             break;
-        case Right:
+        case MouseButton::Right:
             mouse.right = pressed;
             break;
     }
@@ -107,13 +115,14 @@ void Core::MouseButton(enum MouseButton button, bool pressed)
 
 void Core::MouseWheel(int delta)
 {
-    mouse.wheel = delta;
+    mouse.wheelDelta = delta;
 }
 
-void Core::Start(Application *app)
+Core* Core::Start(Application *app)
 {
-    assert(app != nullptr && app != this->app);
-    this->app = app;
+    assert(app != nullptr);
+    static Core inst(app);
+    return &inst;
 }
 
 void Core::Stop()
@@ -143,11 +152,10 @@ Mouse Core::MouseState() const
 
 bool Core::KeyPressed(KeyCode key) const
 {
-    return keys[key];
+    return keys[(uint8_t)key];
 }
 
 void Core::ShowCursor(bool visible)
 {
     ToggleCursorVisiblity(visible);
 }
-

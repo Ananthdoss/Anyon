@@ -7,13 +7,15 @@ namespace Anyon
 {
     class ResourceManager
     {
+        friend class Core;
+        
     public:
         class Resource
         {
             friend class ResourceManager;
             
         public:
-            Resource(const std::string &name);
+            Resource(const std::string &name, ResourceManager *resMan);
             virtual ~Resource();
             
             virtual bool Valid() const = 0;
@@ -24,18 +26,16 @@ namespace Anyon
             unsigned References() const;
             
         private:
+            ResourceManager *resMan;
             std::string name;
             unsigned refs = 1;
         };
         
-        static ResourceManager* Instance();
-        
         Resource* Find(const std::string &name) const;
-        
-        void ReleaseAll();
         
         ResourceManager(ResourceManager const &) = delete;
         ResourceManager& operator = (ResourceManager const &) = delete;
+        ResourceManager& operator = (ResourceManager &&) = delete;
         
     private:
         ResourceManager(){};
@@ -45,6 +45,6 @@ namespace Anyon
         
         void AddResource(Resource *res);
         void RemoveResource(Resource *res);
+        void ReleaseAll();
     };
 }
-

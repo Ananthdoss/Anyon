@@ -7,10 +7,10 @@ int main(int argc, char **argv)
     [NSApplication sharedApplication];
     
     Core::Application *app = new Game();
-    AppDelegate *appDelegate = [[AppDelegate alloc] initWithPlatformWrapper:(PlatformWrapper*)Core::Instance()];
-    [NSApp setDelegate:appDelegate];
-    Core::Instance()->Start(app);
     
+    AppDelegate *appDelegate = [[AppDelegate alloc] initWithPlatformWrapper:(PlatformWrapper*)Core::Start(app)];
+    
+    [NSApp setDelegate:appDelegate];
     [NSApp activateIgnoringOtherApps:YES];
     [NSApp run];
     
@@ -20,4 +20,3 @@ int main(int argc, char **argv)
     
     return 0;
 }
-

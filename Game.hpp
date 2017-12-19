@@ -15,3 +15,4 @@ public:
     void Finalize() final;
     void Update(const double delta) final;
 };
+
