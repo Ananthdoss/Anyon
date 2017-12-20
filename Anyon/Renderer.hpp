@@ -17,7 +17,7 @@ namespace Anyon
         void CompleteQueue();
         void SetDefaultStates();
         void Clear(bool color, bool depth, bool stencil);
-        void ClearColor(Color col);
+        void ClearColor(const Color &col);
         Color ClearColor();
         
         Renderer(Renderer const &) = delete;

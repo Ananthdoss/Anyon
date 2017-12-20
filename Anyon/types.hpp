@@ -51,7 +51,7 @@ namespace Anyon
         inline Color& operator = (const Color &) = default;
         inline Color& operator = (Color &&) = default;
         
-        inline bool operator == (Color src) const
+        inline bool operator == (const Color &src) const
         {
             return r == src.r && g == src.g && b == src.b && a == src.a;
         }
@@ -66,7 +66,7 @@ namespace Anyon
             return rgba;
         }
         
-        inline Color& operator += (Color col)
+        inline Color& operator += (const Color &col)
         {
             r += col.r;
             g += col.g;
@@ -75,12 +75,12 @@ namespace Anyon
             return *this;
         }
         
-        inline Color operator + (Color col) const
+        inline Color operator + (const Color &col) const
         {
             return (Color)*this += col;
         }
         
-        inline Color& operator *= (Color col)
+        inline Color& operator *= (const Color &col)
         {
             r *= col.r;
             g *= col.g;
@@ -89,7 +89,7 @@ namespace Anyon
             return *this;
         }
         
-        inline Color operator * (Color col) const
+        inline Color operator * (const Color &col) const
         {
             return (Color)*this *= col;
         }
@@ -107,7 +107,7 @@ namespace Anyon
             return s.str();
         }
         
-        friend std::ostream& operator << (std::ostream &stream, Color col)
+        friend std::ostream& operator << (std::ostream &stream, const Color &col)
         {
             stream << (std::string)col;
             return stream;
@@ -162,7 +162,7 @@ namespace Anyon
         x(f[0]), y(f[1]) {}
         
         inline constexpr Vector2(float x, float y):
-        x(x), y(y){}
+        x(x), y(y) {}
         
         inline constexpr Vector2(cref xy):
         x(xy[0]), y(xy[1]) {}
@@ -182,38 +182,38 @@ namespace Anyon
             return xy;
         }
         
-        inline Vector2& operator += (Vector2 vec)
+        inline Vector2& operator += (const Vector2 &vec)
         {
             x += vec.x;
             y += vec.y;
             return *this;
         }
         
-        inline Vector2 operator + (Vector2 vec) const
+        inline Vector2 operator + (const Vector2 &vec) const
         {
             return (Vector2)*this += vec;
         }
         
-        inline Vector2& operator -= (Vector2 vec)
+        inline Vector2& operator -= (const Vector2 &vec)
         {
             x -= vec.x;
             y -= vec.y;
             return *this;
         }
         
-        inline Vector2 operator - (Vector2 vec) const
+        inline Vector2 operator - (const Vector2 &vec) const
         {
             return (Vector2)*this -= vec;
         }
         
-        inline Vector2& operator *= (Vector2 vec)
+        inline Vector2& operator *= (const Vector2 &vec)
         {
             x *= vec.x;
             y *= vec.y;
             return *this;
         }
         
-        inline Vector2 operator * (Vector2 vec) const
+        inline Vector2 operator * (const Vector2 &vec) const
         {
             return (Vector2)*this *= vec;
         }
@@ -230,7 +230,7 @@ namespace Anyon
             return (Vector2)*this *= val;
         }
         
-        inline Vector2& operator /= (Vector2 vec)
+        inline Vector2& operator /= (const Vector2 &vec)
         {
             x /= vec.x;
             y /= vec.y;
@@ -254,22 +254,22 @@ namespace Anyon
             return Vector2(*this) /= val;
         }
         
-        inline float Dot(Vector2 vec) const
+        inline float Dot(const Vector2 &vec) const
         {
             return x * vec.x + y * vec.y;
         }
         
-        inline float Cross(Vector2 vec) const
+        inline float Cross(const Vector2 &vec) const
         {
             return x * vec.y - vec.x * y;
         }
         
-        inline float DistTo(Vector2 vec) const
+        inline float DistTo(const Vector2 &vec) const
         {
             return std::hypot(vec.x - x, vec.y - y);
         }
         
-        inline float DistToQ(Vector2 vec) const
+        inline float DistToQ(const Vector2 &vec) const
         {
             return (vec - *this).LengthQ();
         }
@@ -291,12 +291,12 @@ namespace Anyon
             return *this;
         }
         
-        inline Vector2 Lerp(Vector2 vec, float coeff) const
+        inline Vector2 Lerp(const Vector2 &vec, float coeff) const
         {
             return *this + (vec - *this) * coeff;
         }
         
-        inline float Angle(Vector2 vec) const
+        inline float Angle(const Vector2 &vec) const
         {
             return std::atan2(y - vec.y, x - vec.x);
         }
@@ -307,7 +307,7 @@ namespace Anyon
             return Vector2(x * c - y * s, x * s + y * c);
         }
         
-        inline Vector2 Reflect(Vector2 normal) const
+        inline Vector2 Reflect(const Vector2 &normal) const
         {
             return *this - normal * (2.f * Dot(normal));
         }
@@ -320,7 +320,7 @@ namespace Anyon
             return s.str();
         }
         
-        friend std::ostream& operator << (std::ostream &stream, Vector2 vec)
+        friend std::ostream& operator << (std::ostream &stream, const Vector2 &vec)
         {
             stream << (std::string)vec;
             return stream;
@@ -365,23 +365,23 @@ namespace Anyon
             return rect;
         }
         
-        inline bool Intersects(Rectangle rect) const
+        inline bool Intersects(const Rectangle &rect) const
         {
             return (x < rect.x + rect.width && x + width > rect.x && y < rect.y + rect.height && y + height > rect.y) ||
             (rect.x + rect.width < x && rect.x > x + width && rect.y + rect.height < y && rect.y > y + height);
         }
         
-        inline bool Include(Vector2 vec) const
+        inline bool Include(const Vector2 &vec) const
         {
             return vec.x > x && vec.x < x + width && vec.y > y && vec.y < y + height;
         }
         
-        inline bool Include(Rectangle rect) const
+        inline bool Include(const Rectangle &rect) const
         {
             return rect.x < x && rect.y < y && rect.x + rect.width > x + width && rect.y + rect.height > y + height;
         }
         
-        inline Rectangle Intersection(Rectangle rect) const
+        inline Rectangle Intersection(const Rectangle &rect) const
         {
             if (Intersects(rect))
             {
@@ -410,7 +410,7 @@ namespace Anyon
             return s.str();
         }
         
-        friend std::ostream& operator << (std::ostream &stream, Rectangle rec)
+        friend std::ostream& operator << (std::ostream &stream, const Rectangle &rec)
         {
             stream << (std::string)rec;
             return stream;
@@ -431,16 +431,16 @@ namespace Anyon
         typedef float (&ref)[3];
         typedef const float (&cref)[3];
         
-        inline Vector3():
+        inline constexpr Vector3():
         x(0.f), y(0.f), z(0.f) {}
         
-        inline Vector3(const float *f):
+        inline constexpr Vector3(const float *f):
         x(f[0]), y(f[1]), z(f[2]) {}
         
-        inline Vector3(float x, float y, float z):
+        inline constexpr Vector3(float x, float y, float z):
         x(x), y(y), z(z) {}
         
-        inline Vector3(cref xyz):
+        inline constexpr Vector3(cref xyz):
         x(xyz[0]), y(xyz[1]), z(xyz[2]) {}
         
         inline Vector3(Vector3 &&) = default;
@@ -458,7 +458,7 @@ namespace Anyon
             return xyz;
         }
         
-        inline Vector3 &operator += (Vector3 vec)
+        inline Vector3 &operator += (const Vector3 &vec)
         {
             x += vec.x;
             y += vec.y;
@@ -466,12 +466,12 @@ namespace Anyon
             return *this;
         }
         
-        inline Vector3 operator + (Vector3 vec) const
+        inline Vector3 operator + (const Vector3 &vec) const
         {
             return (Vector3)*this += vec;
         }
         
-        inline Vector3& operator -= (Vector3 vec)
+        inline Vector3& operator -= (const Vector3 &vec)
         {
             x -= vec.x;
             y -= vec.y;
@@ -479,12 +479,12 @@ namespace Anyon
             return *this;
         }
         
-        inline Vector3 operator - (Vector3 vec) const
+        inline Vector3 operator - (const Vector3 &vec) const
         {
             return (Vector3)*this -= vec;
         }
         
-        inline Vector3& operator *= (Vector3 vec)
+        inline Vector3& operator *= (const Vector3 &vec)
         {
             x *= vec.x;
             y *= vec.y;
@@ -492,7 +492,7 @@ namespace Anyon
             return *this;
         }
         
-        inline Vector3 operator * (Vector3 vec) const
+        inline Vector3 operator * (const Vector3 &vec) const
         {
             return (Vector3)*this *= vec;
         }
@@ -510,7 +510,7 @@ namespace Anyon
             return (Vector3)*this *= val;
         }
         
-        inline Vector3& operator /= (Vector3 vec)
+        inline Vector3& operator /= (const Vector3 &vec)
         {
             x /= vec.x;
             y /= vec.y;
@@ -518,7 +518,7 @@ namespace Anyon
             return *this;
         }
         
-        inline Vector3 operator / (Vector3 vec) const
+        inline Vector3 operator / (const Vector3 &vec) const
         {
             return (Vector3)*this /= vec;
         }
@@ -536,27 +536,27 @@ namespace Anyon
             return (Vector3)*this /= val;
         }
         
-        inline float Dot(Vector3 vec) const
+        inline float Dot(const Vector3 &vec) const
         {
             return x * vec.x + y * vec.y + z * vec.z;
         }
         
-        inline Vector3 Cross(Vector3 vec) const
+        inline Vector3 Cross(const Vector3 &vec) const
         {
             return Vector3(y * vec.z - z * vec.y, z * vec.x - x * vec.z, x * vec.y - y * vec.x);
         }
         
-        inline float FlatDistance(Vector3 vec) const
+        inline float FlatDistance(const Vector3 &vec) const
         {
             return std::hypot(vec.x - x, vec.y - y);
         }
         
-        inline float Distance(Vector3 vec) const
+        inline float Distance(const Vector3 &vec) const
         {
             return std::hypot(vec.x - x, vec.y - y, vec.z - z);
         }
         
-        inline float DistanceQ(Vector3 vec) const
+        inline float DistanceQ(const Vector3 &vec) const
         {
             return (vec - *this).LengthQ();
         }
@@ -578,17 +578,17 @@ namespace Anyon
             return *this;
         }
         
-        inline Vector3 Lerp(Vector3 vec, float coeff) const
+        inline Vector3 Lerp(const Vector3 &vec, float coeff) const
         {
             return *this + (vec - *this) * coeff;
         }
         
-        inline float Angle(Vector3 vec) const
+        inline float Angle(const Vector3 &vec) const
         {
             return std::acos(Dot(vec) / std::sqrt(LengthQ() * vec.LengthQ()));
         }
         
-        inline Vector3 Rotate(float fAngle, Vector3 axis) const
+        inline Vector3 Rotate(float fAngle, const Vector3 &axis) const
         {
             const float s = std::sin(fAngle), c = std::cos(fAngle);
             
@@ -600,7 +600,7 @@ namespace Anyon
             return Vector3(v[0].x + v[1].x * c + v[2].x * s, v[0].y + v[1].y * c + v[2].y * s, v[0].z + v[1].z * c + v[2].z * s);
         }
         
-        inline Vector3 Reflect(Vector3 normal) const
+        inline Vector3 Reflect(const Vector3 &normal) const
         {
             return *this - normal * (2.f * Dot(normal));
         }
@@ -624,6 +624,14 @@ namespace Anyon
     {
         union
         {
+            struct
+            {
+                float
+                _00, _01, _02, _03,
+                _10, _11, _12, _13,
+                _20, _21, _22, _23,
+                _30, _31, _32, _33;
+            };
             float _1D[16];
             float _2D[4][4];
         };
@@ -631,22 +639,21 @@ namespace Anyon
         typedef float (&ref)[16];
         typedef const float (&cref)[16];
         
-        inline Matrix4()
-        {
-            memset(_1D, 0, sizeof _1D);
-        }
+        inline constexpr Matrix4():
+        _00(0), _01(0), _02(0), _03(0),
+        _10(0), _11(0), _12(0), _13(0),
+        _20(0), _21(0), _22(0), _23(0),
+        _30(0), _31(0), _32(0), _33(0) {}
         
-        inline Matrix4(
+        inline constexpr Matrix4(
                        float _00, float _01, float _02, float _03,
                        float _10, float _11, float _12, float _13,
                        float _20, float _21, float _22, float _23,
-                       float _30, float _31, float _32, float _33)
-        {
-            _2D[0][0] = _00; _2D[0][1] = _01; _2D[0][2] = _02; _2D[0][3] = _03;
-            _2D[1][0] = _10; _2D[1][1] = _11; _2D[1][2] = _12; _2D[1][3] = _13;
-            _2D[2][0] = _20; _2D[2][1] = _21; _2D[2][2] = _22; _2D[2][3] = _23;
-            _2D[3][0] = _30; _2D[3][1] = _31; _2D[3][2] = _32; _2D[3][3] = _33;
-        }
+                       float _30, float _31, float _32, float _33):
+        _00(_00), _01(_01), _02(_02), _03(_03),
+        _10(_10), _11(_11), _12(_12), _13(_13),
+        _20(_20), _21(_21), _22(_22), _23(_23),
+        _30(_30), _31(_31), _32(_32), _33(_33) {}
         
         inline operator ref ()
         {
@@ -657,6 +664,11 @@ namespace Anyon
         {
             return _1D;
         }
+        
+        inline Matrix4(Matrix4 &&) = default;
+        inline Matrix4(const Matrix4 &) = default;
+        inline Matrix4& operator = (const Matrix4 &) = default;
+        inline Matrix4& operator = (Matrix4 &&) = default;
         
         inline Matrix4& operator += (float right)
         {
@@ -707,32 +719,32 @@ namespace Anyon
         
         inline Matrix4 operator + (float right) const
         {
-            return Matrix4(*this) += right;
+            return (Matrix4)*this += right;
         }
         
         inline Matrix4 operator - (float right) const
         {
-            return Matrix4(*this) -= right;
+            return (Matrix4)*this -= right;
         }
         
         inline Matrix4 operator * (float right) const
         {
-            return Matrix4(*this) *= right;
+            return (Matrix4)*this *= right;
         }
         
         inline Matrix4 operator / (float right) const
         {
-            return Matrix4(*this) /= right;
+            return (Matrix4)*this /= right;
         }
         
         inline Matrix4 operator + (const Matrix4 &right) const
         {
-            return Matrix4(*this) += right;
+            return (Matrix4)*this += right;
         }
         
         inline Matrix4 operator - (const Matrix4 &right) const
         {
-            return Matrix4(*this) -= right;
+            return (Matrix4)*this -= right;
         }
         
         inline Matrix4 operator * (const Matrix4 &right) const
@@ -759,7 +771,7 @@ namespace Anyon
             return product;
         }
         
-        inline Vector3 ApplyToVector(Vector3 vec) const
+        inline Vector3 ApplyToVector(const Vector3 &vec) const
         {
             return Vector3(vec.xyz[0] * _2D[0][0] + vec.xyz[1] * _2D[1][0] + vec.xyz[2] * _2D[2][0],
                            vec.xyz[0] * _2D[0][1] + vec.xyz[1] * _2D[1][1] + vec.xyz[2] * _2D[2][1],
@@ -864,7 +876,7 @@ namespace Anyon
                            _2D[3][0], _2D[3][1], _2D[3][2], _2D[3][3]);
         }
         
-        static inline Matrix4 Identity()
+        static inline constexpr Matrix4 Identity()
         {
             return Matrix4(
                            1.f, 0.f, 0.f, 0.f,
@@ -873,7 +885,7 @@ namespace Anyon
                            0.f, 0.f, 0.f, 1.f);
         }
         
-        static inline Matrix4 MatrixScale(Vector3 vec)
+        static inline constexpr Matrix4 MatrixScale(const Vector3 &vec)
         {
             return Matrix4(
                            vec.x, 0.f, 0.f, 0.f,
@@ -882,7 +894,7 @@ namespace Anyon
                            0.f, 0.f, 0.f, 1.f);
         }
         
-        static inline Matrix4 MatrixTranslate(Vector3 vec)
+        static inline constexpr Matrix4 MatrixTranslate(const Vector3 &vec)
         {
             return Matrix4(
                            1.f, 0.f, 0.f, 0.f,
