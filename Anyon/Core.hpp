@@ -19,6 +19,9 @@ namespace Anyon
         int wheelDelta;
         bool left;
         bool right;
+        
+        Mouse():
+        x(0), y(0), wheelDelta(0), left(false), right(false) {}
     };
     
     class Core : private PlatformWrapper
@@ -37,7 +40,7 @@ namespace Anyon
             virtual ~Application(){};
             
         protected:
-            inline Core* Core() const;
+            Core* Core() const;
             
         private:
             class Core *core;
@@ -62,6 +65,9 @@ namespace Anyon
         
         Mouse MouseState() const;
         bool KeyPressed(KeyCode key) const;
+        void BeginTextInput();
+        void EndTextInput();
+        std::wstring InputedText();
         void ShowCursor(bool visible);
         
         inline class ResourceManager* ResourceManager();
@@ -79,6 +85,8 @@ namespace Anyon
         
         bool stopFlag = false;
         bool keys[256];
+        std::wstring textInput;
+        bool grabTextInput = false;
         Mouse mouse;
         
         std::chrono::milliseconds lastUpdateTime;
@@ -96,6 +104,7 @@ namespace Anyon
         void Activate() final;
         void Deactivate() final;
         void SetKey(KeyCode key, bool pressed) final;
+        void InputCharacter(wchar_t c) final;
         void MouseMove(int x, int y) final;
         void MouseButton(enum MouseButton button, bool pressed) final;
         void MouseWheel(int delta) final;

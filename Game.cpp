@@ -26,5 +26,4 @@ void Game::Finalize()
 
 void Game::Update(const double delta)
 {
-
 }

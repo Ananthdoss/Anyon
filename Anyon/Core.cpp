@@ -17,7 +17,6 @@ Core::Core(Application *app):
 app(app)
 {
     memset(&keys, 0, 256);
-    memset(&mouse, 0, sizeof(Mouse));
     app->core = this;
 }
 
@@ -94,6 +93,12 @@ void Core::SetKey(KeyCode key, bool pressed)
     keys[(uint8_t)key] = pressed;
 }
 
+void Core::InputCharacter(wchar_t c)
+{
+    if (grabTextInput)
+        textInput.push_back(c);
+}
+
 void Core::MouseMove(int x, int y)
 {
     mouse.x = x;
@@ -153,6 +158,22 @@ Mouse Core::MouseState() const
 bool Core::KeyPressed(KeyCode key) const
 {
     return keys[(uint8_t)key];
+}
+
+void Core::BeginTextInput()
+{
+    grabTextInput = true;
+    textInput.clear();
+}
+
+void Core::EndTextInput()
+{
+    grabTextInput = false;
+}
+
+std::wstring Core::InputedText()
+{
+    return textInput;
 }
 
 void Core::ShowCursor(bool visible)

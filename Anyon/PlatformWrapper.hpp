@@ -20,6 +20,7 @@ namespace Anyon
         virtual void Activate() = 0;
         virtual void Deactivate() = 0;
         virtual void SetKey(KeyCode key, bool pressed) = 0;
+        virtual void InputCharacter(wchar_t c) = 0;
         virtual void MouseMove(int x, int y) = 0;
         virtual void MouseButton(MouseButton button, bool pressed) = 0;
         virtual void MouseWheel(int delta) = 0;

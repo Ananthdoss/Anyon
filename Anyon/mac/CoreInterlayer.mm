@@ -287,8 +287,8 @@ using namespace Anyon;
 
 - (void) inputCharacter:(unichar)c
 {
-    //if ([alphanumeric characterIsMember:c] || [punctuation characterIsMember:c] || [symbol characterIsMember:c] || c == 0x20/*space*/)
-    // To implement text input handling here in future.
+    if ([alphanumeric characterIsMember:c] || [punctuation characterIsMember:c] || [symbol characterIsMember:c] || c == 0x20/*space*/)
+        ((PlatformWrapper *)wrapper)->InputCharacter(c);
 }
 
 - (void) setLeftMouseButton:(bool)pressed
