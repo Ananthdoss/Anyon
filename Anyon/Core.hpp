@@ -70,8 +70,8 @@ namespace Anyon
         std::wstring InputedText();
         void ShowCursor(bool visible);
         
-        inline class ResourceManager* ResourceManager();
-        inline class Renderer* Renderer();
+        class ResourceManager* ResourceManager();
+        class Renderer* Renderer();
 
         Core(Core const &) = delete;
         Core& operator = (Core const &) = delete;

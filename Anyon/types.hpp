@@ -99,7 +99,7 @@ namespace Anyon
             return ((uint32_t)(((uint8_t)(255 * r) | ((uint32_t)((uint8_t)(255 * g)) << 8)) | (((uint32_t)(uint8_t)(255 * b)) << 16) | (((uint32_t)(uint8_t)(255 * a)) << 24)));
         }
         
-        inline operator std::string() const
+        inline operator std::string () const
         {
             static std::ostringstream s;
             s.clear();
@@ -312,7 +312,7 @@ namespace Anyon
             return *this - normal * (2.f * Dot(normal));
         }
         
-        inline operator std::string() const
+        inline operator std::string () const
         {
             static std::ostringstream s;
             s.clear();
@@ -402,7 +402,7 @@ namespace Anyon
                 return Rectangle();
         }
         
-        inline operator std::string() const
+        inline operator std::string () const
         {
             static std::ostringstream s;
             s.clear();
@@ -605,7 +605,7 @@ namespace Anyon
             return *this - normal * (2.f * Dot(normal));
         }
         
-        inline operator std::string() const
+        inline operator std::string () const
         {
             static std::ostringstream s;
             s.clear();
@@ -614,6 +614,67 @@ namespace Anyon
         }
         
         friend std::ostream& operator << (std::ostream &stream, const Vector3 &vec)
+        {
+            stream << (std::string)vec;
+            return stream;
+        }
+    };
+    
+    struct Vector4
+    {
+        union
+        {
+            struct
+            {
+                float x, y, z, w;
+            };
+            float xyzw[4];
+        };
+        
+        typedef float (&ref)[4];
+        typedef const float (&cref)[4];
+        
+        inline constexpr Vector4():
+        x(0.f), y(0.f), z(0.f), w(0.f) {}
+        
+        inline constexpr Vector4(const float *f):
+        x(f[0]), y(f[1]), z(f[2]), w(f[3]) {}
+        
+        inline constexpr Vector4(cref xyzw):
+        x(xyzw[0]), y(xyzw[1]), z(xyzw[2]), w(xyzw[3]) {}
+        
+        inline constexpr Vector4(const Vector3 &vec):
+        x(vec.x), y(vec.y), z(vec.z), w(0.f) {}
+        
+        inline Vector4(Vector4 &&) = default;
+        inline Vector4(const Vector4 &) = default;
+        inline Vector4& operator = (const Vector4 &) = delete;
+        inline Vector4& operator = (Vector4 &&) = delete;
+        
+        inline operator ref ()
+        {
+            return xyzw;
+        }
+        
+        inline operator cref () const
+        {
+            return xyzw;
+        }
+        
+        inline operator Vector3 () const
+        {
+            return Vector3(x, y, z);
+        }
+        
+        inline operator std::string () const
+        {
+            static std::ostringstream s;
+            s.clear();
+            s << std::fixed << std::setprecision(4) << "(" << x << "," << y << "," << z <<  "," << w << ")";
+            return s.str();
+        }
+        
+        friend std::ostream& operator << (std::ostream &stream, const Vector4 &vec)
         {
             stream << (std::string)vec;
             return stream;
@@ -914,7 +975,22 @@ namespace Anyon
                            0.f, 0.f, 0.f, 1.f);
         }
         
-        inline operator std::string() const
+        static inline Matrix4 PerspectiveProjection(float aspect, float fovAngle, float nearZ, float farZ)
+        {
+            const float
+            top = nearZ * std::tan(fovAngle / 2.f),
+            bottom = -top,
+            left = bottom * aspect,
+            right = top * aspect;
+            
+            return Matrix4(
+                           2.f * nearZ / (right - left), 0.f, (right + left) / (right - left), 0.f,
+                           0.f, 2.f * nearZ / (top - bottom), (top + bottom) / (top - bottom), 0.f,
+                           0.f, 0.f, -(farZ + nearZ) / (farZ - nearZ), -1.f,
+                           0.f, 0.f, -2.f * farZ * nearZ / (farZ - nearZ), 0.f);
+        }
+        
+        inline operator std::string () const
         {
             static std::ostringstream s;
             s.clear();

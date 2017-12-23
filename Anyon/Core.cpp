@@ -20,7 +20,7 @@ app(app)
     app->core = this;
 }
 
-ResourceManager* Core::ResourceManager()
+class ResourceManager* Core::ResourceManager()
 {
     return &resMan;
 }
@@ -61,10 +61,10 @@ bool Core::MainLoop()
     
     if (!Pause)
     {
-        renderer.CompleteQueue();
+        renderer.PrepareFrame();
         renderer.Clear(true, true, true);
         app->Update((time - lastUpdateTime).count() / 1000.0);
-        renderer.CompleteQueue();
+        renderer.CompleteFrame();
     }
     
     lastUpdateTime = time;

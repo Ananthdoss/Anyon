@@ -32,14 +32,15 @@ namespace Anyon
         };
         
         Resource* Find(const std::string &name) const;
+        bool Exist(const std::string &name) const;
         
         ResourceManager(ResourceManager const &) = delete;
         ResourceManager& operator = (ResourceManager const &) = delete;
         ResourceManager& operator = (ResourceManager &&) = delete;
         
     private:
-        ResourceManager(){};
-        ~ResourceManager(){};
+        ResourceManager() {};
+        ~ResourceManager() {};
         
         std::unordered_map<std::string, class ResourceManager::Resource*> resources;
         

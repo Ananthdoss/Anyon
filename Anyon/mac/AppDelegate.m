@@ -82,7 +82,7 @@
 - (void) reconfigureWindow
 {
     doReconfigureOnWindowClose = YES;
-    [window close];
+    [view initiateReconfig];
 }
 
 - (void) applicationWillFinishLaunching:(NSNotification *)aNotification
@@ -106,7 +106,6 @@
     [core initialize];
     
     [view activate];
-    
     [window makeKeyAndOrderFront:self];
 }
 

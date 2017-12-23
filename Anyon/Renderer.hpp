@@ -11,29 +11,69 @@ namespace Anyon
     class Renderer
     {
         friend class Core;
-        
+    
     public:
-        void PrepareQueue();
-        void CompleteQueue();
+        enum class VertexAttributeIndex { Position, TextureUV, Normal, Tangent };
+        
+        struct VertexAttributes
+        {
+            bool textureUV;
+            bool normal;
+            bool tangent;
+        };
+        
+        class Renderable
+        {
+            friend class Renderer;
+            
+        public:
+            virtual VertexAttributes VertexAttributes() const = 0;
+            virtual unsigned TrianglesCount() const = 0;
+            virtual ~Renderable() {};
+            
+        protected:
+            virtual uint8_t* BatchRender() const = 0; // If NULL is returned than batch render is unsupported for the object.
+            virtual void InstantRender() const = 0;
+        };
+        
+        class StateObject
+        {
+            friend class Renderer;
+            
+        public:
+            enum class ObjectType { Shader, Mesh };
+            virtual ObjectType Type() const = 0;
+            
+        protected:
+#ifdef ANYON_GL
+            virtual GLuint Object() const = 0;
+#endif
+        };
+        
         void SetDefaultStates();
         void Clear(bool color, bool depth, bool stencil);
         void ClearColor(const Color &col);
         Color ClearColor();
+        void Render(Renderable *rend);
+        void Bind(StateObject *obj);
         
         Renderer(Renderer const &) = delete;
         Renderer& operator = (Renderer const &) = delete;
         Renderer& operator = (Renderer &&) = delete;
         
     private:
-        ~Renderer(){};
-        Renderer(){};
+        ~Renderer() {};
+        Renderer() {};
         
         Color colorClear = colorNone;
+        unsigned drawCalls, trianglesRendered;
         
+        void PrepareFrame();
+        void CompleteFrame();
         void ResizeViewport(unsigned width, unsigned height);
         
 #ifdef ANYON_GL
-        
+        GLuint currentVao, currentProgram;
 #endif
     };
 }

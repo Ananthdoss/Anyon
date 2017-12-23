@@ -22,13 +22,22 @@
     self->window = window;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didBecomeKeyNotification:) name:NSWindowDidBecomeKeyNotification object:self->window];
-    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didResignKeyNotification:) name:NSWindowDidResignKeyNotification object:self->window];
 }
 
 - (CVReturn) getFrameForTime:(const CVTimeStamp *)outputTime
 {
     [self drawView];
+    
+    if (initiateReconfig)
+    {
+        initiateReconfig = NO;
+        [self deactivate];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self releaseDisplayLink];
+            [window close];
+        });
+    }
     
     return kCVReturnSuccess;
 }
@@ -41,44 +50,50 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 - (void) setupDisplayLink
 {
     CVDisplayLinkCreateWithActiveCGDisplays(&displayLink);
-    
     CVDisplayLinkSetOutputCallback(displayLink, &MyDisplayLinkCallback, self);
-    
     CVDisplayLinkSetCurrentCGDisplayFromOpenGLContext(displayLink, [context CGLContextObj], [pixelFormat CGLPixelFormatObj]);
+}
+
+- (void) releaseDisplayLink
+{
+    CVDisplayLinkStop(displayLink);
+    CVDisplayLinkRelease(displayLink);
+    displayLink = nil;
 }
 
 - (id) initWithFrame:(NSRect)frameRect coreInterlayer:(CoreInterlayer *)core
 {
-    window = nil;
-    self->core = core;
-    
-    const NSOpenGLPixelFormatAttribute attribs_common[] =
+    if (self = [super initWithFrame:frameRect])
     {
+        initiateReconfig = NO;
+        window = nil;
+        self->core = core;
+        
+        const NSOpenGLPixelFormatAttribute attribs_common[] =
+        {
 #ifdef REQUIRE_ACCELERATION
-        NSOpenGLPFAAccelerated,
+            NSOpenGLPFAAccelerated,
 #endif
-        NSOpenGLPFADoubleBuffer,
-        NSOpenGLPFAColorSize, 24,
-        NSOpenGLPFAAlphaSize, 8,
-        NSOpenGLPFADepthSize, 24,
-        NSOpenGLPFAStencilSize, 8,
-        NSOpenGLPFAOpenGLProfile,
-        NSOpenGLProfileVersion4_1Core,
-        NSOpenGLPFAMultisample,
-        NSOpenGLPFASampleBuffers, 1,
-        NSOpenGLPFASamples, core.configFsaa ? MSAA_BUFFERS : 1,
-        0
-    };
+            NSOpenGLPFATripleBuffer,
+            NSOpenGLPFAColorSize, 24,
+            NSOpenGLPFAAlphaSize, 8,
+            NSOpenGLPFADepthSize, 24,
+            NSOpenGLPFAStencilSize, 8,
+            NSOpenGLPFAOpenGLProfile,
+            NSOpenGLProfileVersion4_1Core,
+            core.configFsaa ? NSOpenGLPFAMultisample : 0,
+            NSOpenGLPFASampleBuffers, 1,
+            NSOpenGLPFASamples, MSAA_BUFFERS,
+            0
+        };
+        
+        pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attribs_common];
+        
+        if (!pixelFormat)
+            [self->core fatalAlert:@"No suitable OpenGL 4.1 pixel format found!"];
+        
+        self->context = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
     
-    pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attribs_common];
-    
-    if (!pixelFormat)
-        [self->core fatalAlert:@"No suitable OpenGL 4.1 pixel format found!"];
-    
-    self->context = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
-    
-    if(self = [super initWithFrame:frameRect])
-    {
         [context makeCurrentContext];
         
         const GLint swap = core.configVsync ? 1 : 0;
@@ -99,6 +114,11 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
         [context setView:self];
 }
 
+- (void) initiateReconfig
+{
+    initiateReconfig = YES;
+}
+
 - (void) reconfig
 {
     [context makeCurrentContext];
@@ -113,6 +133,8 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
         core.configFsaa = val == MSAA_BUFFERS;
         NSLog(@"Can not change FSAA settings after initialization!");
     }
+    
+    [self setupDisplayLink];
 }
 
 - (void) reshape
@@ -140,6 +162,7 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
     [context update];
     
     CGLUnlockContext([context CGLContextObj]);
+
 }
 
 - (void) renewGState
@@ -161,7 +184,9 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
     [context makeCurrentContext];
     
     if (![core mainLoop])
-        [window close];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [window close];
+        });
     
     [context flushBuffer];
     
@@ -254,16 +279,13 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 
 - (void) dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidBecomeKeyNotification object:window];
-    
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidResignKeyNotification object:window];
-    
-    CVDisplayLinkStop(displayLink);
-    CVDisplayLinkRelease(displayLink);
+    [self releaseDisplayLink];
     
     [context release];
     [pixelFormat release];
     
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidBecomeKeyNotification object:window];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidResignKeyNotification object:window];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSViewGlobalFrameDidChangeNotification object:self];
     
     [super dealloc];
