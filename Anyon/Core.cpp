@@ -1,5 +1,6 @@
 #include "Core.hpp"
 #include <cassert>
+#include <iostream>
 #include "utils.hpp"
 
 using namespace Anyon;
@@ -44,6 +45,7 @@ void Core::Initialize()
 
 void Core::Finalize()
 {
+    std::cout << "Average fps:" << fpsAccum / fpsCicles << std::endl;
     app->Finalize();
     resMan.ReleaseAll();
 }
@@ -57,6 +59,9 @@ bool Core::MainLoop()
         fps = fpsCount;
         fpsCount = 0;
         lastFpsTime = time;
+        
+        fpsAccum += fps;
+        ++fpsCicles;
     }
     
     if (!Pause)

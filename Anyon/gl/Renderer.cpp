@@ -1,6 +1,8 @@
 #include "Renderer.hpp"
 #include <cassert>
+#include <iostream>
 #include "utils.hpp"
+#include "Core.hpp"
 
 using namespace Anyon;
 
@@ -16,6 +18,7 @@ void Renderer::CompleteFrame()
 
 void Renderer::ResizeViewport(unsigned width, unsigned height)
 {
+    std::cout << "Configuration:" << Core::config << std::endl;
     glViewport(0, 0, width, height);
 }
 

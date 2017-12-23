@@ -53,7 +53,14 @@ namespace Anyon
             bool fullscreen = false;
             bool vsync = true;
             bool fsaa = true;
+            
+            friend std::ostream& operator << (std::ostream &stream, const Configuration &config)
+            {
+                stream << config.width << "x" << config.height << (config.fullscreen ? " fullscreen" : " ") << (config.vsync ? " vsync" : " ") <<  (config.fsaa ? " fsaa" : " ");
+                return stream;
+            }
         };
+        
         static Configuration config;
         static Core* Start(Application *app);
         
@@ -91,8 +98,8 @@ namespace Anyon
         
         std::chrono::milliseconds lastUpdateTime;
         std::chrono::milliseconds lastFpsTime;
-        unsigned fpsCount;
-        unsigned fps = 0;
+        unsigned fpsCount, fps = 0,
+        fpsAccum = 0, fpsCicles = 0;
         
         Core(Application *app);
         ~Core(){};
