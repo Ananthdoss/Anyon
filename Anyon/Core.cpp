@@ -87,8 +87,18 @@ bool Core::MainLoop()
 
 void Core::Resize(unsigned width, unsigned height)
 {
+    static unsigned w = 0, h = 0;
+    
+    if (w == width && h == height)
+        return;
+    
+    w = width;
+    h = height;
+    
     std::cout << "Configuration:" << Core::config << std::endl;
+    
     renderer.ResizeViewport(width, height);
+    
     mainAppReceiver->Resize(width, height);
     for (auto l : listeners)
         l->Resize(width, height);
