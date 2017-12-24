@@ -145,12 +145,17 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
     
     if (bounds.size.width != core.configWidth || bounds.size.height != core.configHeight)
     {
-        const GLint dim[2] = {core.configWidth, core.configHeight};
-        CGLSetParameter([context CGLContextObj], kCGLCPSurfaceBackingSize, dim);
-        CGLEnable([context CGLContextObj], kCGLCESurfaceBackingSize);
+        NSLog(@"Switching to non-native fullscreen resolution currently is not supported!");
+        core.configWidth = bounds.size.width;
+        core.configHeight = bounds.size.height;
         
-        bounds.size.width = core.configWidth;
-        bounds.size.height = core.configHeight;
+        // Issue: For some reason this code doesn't work!
+        /*const GLint dim[2] = {core.configWidth, core.configHeight };
+        CGLSetParameter([context CGLContextObj], kCGLCPSurfaceBackingSize, dim);
+        CGLEnable([context CGLContextObj], kCGLCESurfaceBackingSize);*/
+        
+        //bounds.size.width = core.configWidth;
+        //bounds.size.height = core.configHeight;
         [core resize:bounds];
     }
     else

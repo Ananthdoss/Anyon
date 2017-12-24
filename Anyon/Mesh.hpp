@@ -6,7 +6,7 @@
 
 namespace Anyon
 {
-    class Mesh : public ResourceManager::Resource, public Renderer::Renderable, public Renderer::StateObject
+    class Mesh : public ResourceManager::Resource, public Renderer::Renderable, public Renderer::RenderObject
     {
     public:
         enum class CommonShapes { Quad };

@@ -8,7 +8,7 @@ bool Mesh::Valid() const
     return valid;
 }
 
-Renderer::StateObject::ObjectType Mesh::Type() const
+Renderer::RenderObject::ObjectType Mesh::Type() const
 {
     return ObjectType::Mesh;
 }

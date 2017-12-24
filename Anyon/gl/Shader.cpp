@@ -5,7 +5,7 @@
 using namespace Anyon;
 
 Shader::Shader(const std::string &name, struct Properties props, ResourceManager *resMan):
-ResourceManager::Resource(name, resMan)
+ResourceManager::Resource(name, resMan), props(props)
 {
     std::string mvp(defaultNames[(unsigned)defaultNameIndex::matrixMVP]),
     dtex(defaultNames[(unsigned)defaultNameIndex::diffuseTexture]);
@@ -154,12 +154,18 @@ Renderer::VertexAttributes Shader::CompatibleVertexAttributes() const
     return {props.diffuseTexture, false, false};
 }
 
+bool Shader::CompatibleWith(Renderer::VertexAttributes attribs) const
+{
+    const Renderer::VertexAttributes a = CompatibleVertexAttributes();
+    return (!a.textureUV || attribs.textureUV) && (!a.normal || attribs.normal) && (!a.tangent || attribs.tangent);
+}
+
 bool Shader::Valid() const
 {
     return valid;
 }
 
-Renderer::StateObject::ObjectType Shader::Type() const
+Renderer::RenderObject::ObjectType Shader::Type() const
 {
     return ObjectType::Shader;
 }

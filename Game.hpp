@@ -8,7 +8,7 @@
 
 using namespace Anyon;
 
-class Game : public Core::Application
+class Game : public Core::EventReceiver
 {
 public:
     Game();

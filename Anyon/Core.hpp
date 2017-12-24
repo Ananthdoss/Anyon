@@ -2,6 +2,7 @@
 
 #include <string>
 #include <chrono>
+#include <vector>
 #include "PlatformWrapper.hpp"
 #include "Renderer.hpp"
 #include "ResourceManager.hpp"
@@ -27,7 +28,7 @@ namespace Anyon
     class Core : private PlatformWrapper
     {
     public:
-        class Application
+        class EventReceiver
         {
             friend class Core;
             
@@ -35,9 +36,17 @@ namespace Anyon
             virtual void Initiaize() = 0;
             virtual void Finalize() = 0;
             virtual void Update(const double delta) = 0;
-            virtual void Activate(){};
-            virtual void Deactivate(){};
-            virtual ~Application(){};
+            virtual void Activate() {};
+            virtual void Deactivate() {};
+            virtual void Resize(unsigned width, unsigned height) {};
+            virtual void KeyUp(KeyCode key) {};
+            virtual void KeyDown(KeyCode key) {};
+            virtual void MouseMove(unsigned x, unsigned y) {};
+            virtual void MouseButtonUp(enum MouseButton button) {};
+            virtual void MouseButtonDown(enum MouseButton button) {};
+            virtual void MouseWheel(int delta) {};
+            
+            virtual ~EventReceiver() {};
             
         protected:
             Core* Core() const;
@@ -62,15 +71,18 @@ namespace Anyon
         };
         
         static Configuration config;
-        static Core* Start(Application *app);
+        static Core* Start(EventReceiver *main);
         
         void Stop();
         bool Pause = false;
         void Reconfigure();
         unsigned Fps() const;
         void FatalError(const std::string &message);
+        void AddEventListner(EventReceiver *listener);
+        void RemoveEventListner(EventReceiver *listener);
         
         Mouse MouseState() const;
+        Vector2 CursorPosition() const;
         bool KeyPressed(KeyCode key) const;
         void BeginTextInput();
         void EndTextInput();
@@ -85,7 +97,8 @@ namespace Anyon
         Core& operator = (Core &&) = delete;
         
     private:
-        Application *app = nullptr;
+        EventReceiver *mainAppReceiver = nullptr;
+        std::vector<EventReceiver*> listeners;
         
         class Renderer renderer;
         class ResourceManager resMan;
@@ -101,7 +114,7 @@ namespace Anyon
         unsigned fpsCount, fps = 0,
         fpsAccum = 0, fpsCicles = 0;
         
-        Core(Application *app);
+        Core(EventReceiver *main);
         ~Core(){};
         
         void Initialize() final;

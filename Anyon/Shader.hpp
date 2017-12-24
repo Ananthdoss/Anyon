@@ -8,7 +8,7 @@
 
 namespace Anyon
 {
-    class Shader : public ResourceManager::Resource, public Renderer::StateObject
+    class Shader : public ResourceManager::Resource, public Renderer::RenderObject
     {
     public:
         struct Properties
@@ -31,6 +31,7 @@ namespace Anyon
         
         struct Properties Properties() const;
         Renderer::VertexAttributes CompatibleVertexAttributes() const;
+        bool CompatibleWith(Renderer::VertexAttributes attribs) const;
         
         bool Valid() const final;
         ObjectType Type() const final;

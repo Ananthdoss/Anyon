@@ -36,7 +36,7 @@ namespace Anyon
             virtual void InstantRender() const = 0;
         };
         
-        class StateObject
+        class RenderObject
         {
             friend class Renderer;
             
@@ -55,7 +55,7 @@ namespace Anyon
         void ClearColor(const Color &col);
         Color ClearColor();
         void Render(Renderable *rend);
-        void Bind(StateObject *obj);
+        void Bind(RenderObject *obj);
         
         Renderer(Renderer const &) = delete;
         Renderer& operator = (Renderer const &) = delete;
@@ -67,6 +67,7 @@ namespace Anyon
         
         Color colorClear = colorNone;
         unsigned drawCalls, trianglesRendered;
+        class Shader *currentShader = nullptr;
         
         void PrepareFrame();
         void CompleteFrame();

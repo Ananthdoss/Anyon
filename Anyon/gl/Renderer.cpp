@@ -1,8 +1,8 @@
 #include "Renderer.hpp"
 #include <cassert>
-#include <iostream>
 #include "utils.hpp"
 #include "Core.hpp"
+#include "Shader.hpp"
 
 using namespace Anyon;
 
@@ -18,7 +18,6 @@ void Renderer::CompleteFrame()
 
 void Renderer::ResizeViewport(unsigned width, unsigned height)
 {
-    std::cout << "Configuration:" << Core::config << std::endl;
     glViewport(0, 0, width, height);
 }
 
@@ -30,6 +29,7 @@ void Renderer::SetDefaultStates()
     currentVao = 0;
     glBindVertexArray(0);
     
+    currentShader = nullptr;
     currentProgram = 0;
     glUseProgram(0);
     
@@ -50,9 +50,15 @@ void Renderer::ClearColor(const Color &col)
 
 void Renderer::Render(Renderable *rend)
 {
-    StateObject *so = dynamic_cast<StateObject *>(rend);
-    assert(so != NULL); // Every Renderable class must be derived from StateObject class!
+    assert(currentShader != nullptr); // Rendering will have no result if no shader is set!
+    
+    RenderObject *so = dynamic_cast<RenderObject*>(rend);
+    assert(so != NULL); // Every Renderable class must be derived from RenderObject class!
     Bind(so);
+    
+    assert(currentShader == nullptr || currentShader->CompatibleWith(rend->VertexAttributes())); // Current shader is incompatible with given geometry!
+    
+    // In future need to test here if texture is assigned for shader that wants it.
     
     rend->InstantRender();
     
@@ -60,20 +66,23 @@ void Renderer::Render(Renderable *rend)
     trianglesRendered += rend->TrianglesCount();
 }
 
-void Renderer::Bind(StateObject *obj)
+void Renderer::Bind(RenderObject *obj)
 {
     const GLuint o = obj->Object();
     
     switch (obj->Type()) {
-        case StateObject::ObjectType::Shader:
+        case RenderObject::ObjectType::Shader:
             if (o != currentProgram)
             {
+                Shader *s = dynamic_cast<Shader*>(obj);
+                assert(s != NULL); // Object of type Shader must be of the same class!
+                currentShader = s;
                 currentProgram = o;
                 glUseProgram(o);
             }
             break;
             
-        case StateObject::ObjectType::Mesh:
+        case RenderObject::ObjectType::Mesh:
             if (o != currentVao)
             {
                 currentVao = o;

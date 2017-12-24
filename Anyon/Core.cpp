@@ -7,18 +7,18 @@ using namespace Anyon;
 using namespace std;
 using namespace chrono;
 
-Core* Core::Application::Core() const
+Core* Core::EventReceiver::Core() const
 {
     return core;
 }
 
 Core::Configuration Core::config;
 
-Core::Core(Application *app):
-app(app)
+Core::Core(EventReceiver *main):
+mainAppReceiver(main)
 {
     memset(&keys, 0, 256);
-    app->core = this;
+    mainAppReceiver->core = this;
 }
 
 class ResourceManager* Core::ResourceManager()
@@ -35,7 +35,9 @@ void Core::Initialize()
 {
     renderer.SetDefaultStates();
     
-    app->Initiaize();
+    mainAppReceiver->Initiaize();
+    for (auto l : listeners)
+        l->Initiaize();
     
     auto time = GetPerfTimer<milliseconds>();
     lastUpdateTime = time;
@@ -46,7 +48,9 @@ void Core::Initialize()
 void Core::Finalize()
 {
     std::cout << "Average fps:" << fpsAccum / fpsCicles << std::endl;
-    app->Finalize();
+    mainAppReceiver->Finalize();
+    for (auto l : listeners)
+        l->Finalize();
     resMan.ReleaseAll();
 }
 
@@ -68,7 +72,10 @@ bool Core::MainLoop()
     {
         renderer.PrepareFrame();
         renderer.Clear(true, true, true);
-        app->Update((time - lastUpdateTime).count() / 1000.0);
+        const double delta = (time - lastUpdateTime).count() / 1000.0;
+        mainAppReceiver->Update(delta);
+        for (auto l : listeners)
+            l->Update(delta);
         renderer.CompleteFrame();
     }
     
@@ -80,22 +87,45 @@ bool Core::MainLoop()
 
 void Core::Resize(unsigned width, unsigned height)
 {
+    std::cout << "Configuration:" << Core::config << std::endl;
     renderer.ResizeViewport(width, height);
+    mainAppReceiver->Resize(width, height);
+    for (auto l : listeners)
+        l->Resize(width, height);
 }
 
 void Core::Activate()
 {
-    app->Activate();
+    mainAppReceiver->Activate();
+    for (auto l : listeners)
+        l->Activate();
 }
 
 void Core::Deactivate()
 {
-    app->Deactivate();
+    mainAppReceiver->Deactivate();
+    for (auto l : listeners)
+        l->Deactivate();
 }
 
 void Core::SetKey(KeyCode key, bool pressed)
 {
+    const bool prev = keys[(uint8_t)key];
+    
     keys[(uint8_t)key] = pressed;
+    
+    if (prev && !pressed)
+    {
+        mainAppReceiver->KeyUp(key);
+        for (auto l : listeners)
+            l->KeyUp(key);
+    }
+    else
+    {
+        mainAppReceiver->KeyDown(key);
+        for (auto l : listeners)
+            l->KeyDown(key);
+    }
 }
 
 void Core::InputCharacter(wchar_t c)
@@ -108,30 +138,54 @@ void Core::MouseMove(int x, int y)
 {
     mouse.x = x;
     mouse.y = y;
+    mainAppReceiver->MouseMove((unsigned)x, (unsigned)y);
+    for (auto l : listeners)
+        l->MouseMove((unsigned)x, (unsigned)y);
 }
 
 void Core::MouseButton(enum MouseButton button, bool pressed)
 {
+    bool prev;
+    
     switch (button)
     {
         case MouseButton::Left:
+            prev = mouse.left;
             mouse.left = pressed;
             break;
+            
         case MouseButton::Right:
+            prev = mouse.right;
             mouse.right = pressed;
             break;
+    }
+    
+    if (prev && !pressed)
+    {
+        mainAppReceiver->MouseButtonUp(button);
+        for (auto l : listeners)
+            l->MouseButtonUp(button);
+    }
+    else
+    {
+        mainAppReceiver->MouseButtonDown(button);
+        for (auto l : listeners)
+            l->MouseButtonDown(button);
     }
 }
 
 void Core::MouseWheel(int delta)
 {
     mouse.wheelDelta = delta;
+    mainAppReceiver->MouseWheel(delta);
+    for (auto l : listeners)
+        l->MouseWheel(delta);
 }
 
-Core* Core::Start(Application *app)
+Core* Core::Start(EventReceiver *main)
 {
-    assert(app != nullptr);
-    static Core inst(app);
+    assert(main != nullptr); // Main event receiver must be set!
+    static Core inst(main);
     return &inst;
 }
 
@@ -155,9 +209,27 @@ void Core::FatalError(const std::string &message)
     FatalAlert(message.c_str());
 }
 
+void Core::AddEventListner(EventReceiver *listener)
+{
+    assert(listener != mainAppReceiver); // Trying to add main listener!
+    listener->core = this;
+    listeners.push_back(listener);
+}
+
+void Core::RemoveEventListner(EventReceiver *listener)
+{
+    assert(listener != mainAppReceiver); // Trying to remove main listener!
+    listeners.erase(std::remove(listeners.begin(), listeners.end(), listener), listeners.end());
+}
+
 Mouse Core::MouseState() const
 {
     return mouse;
+}
+
+Vector2 Core::CursorPosition() const
+{
+    return Vector2(mouse.x, mouse.y);
 }
 
 bool Core::KeyPressed(KeyCode key) const

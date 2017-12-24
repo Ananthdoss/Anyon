@@ -6,9 +6,9 @@ int main(int argc, char **argv)
 {
     [NSApplication sharedApplication];
     
-    Core::Application *app = new Game();
+    Core::EventReceiver *appMainReceiver = new Game();
     
-    AppDelegate *appDelegate = [[AppDelegate alloc] initWithPlatformWrapper:(PlatformWrapper*)Core::Start(app)];
+    AppDelegate *appDelegate = [[AppDelegate alloc] initWithPlatformWrapper:(PlatformWrapper*)Core::Start(appMainReceiver)];
     
     [NSApp setDelegate:appDelegate];
     [NSApp activateIgnoringOtherApps:YES];
@@ -16,7 +16,7 @@ int main(int argc, char **argv)
     
     [appDelegate release];
     
-    delete app;
+    delete appMainReceiver;
     
     return 0;
 }

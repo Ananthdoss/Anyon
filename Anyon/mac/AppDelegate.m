@@ -95,7 +95,6 @@
     [window setContentView:view];
     [window makeFirstResponder:view];
     
-    [view reshape];
     view.needsDisplay = YES;
 }
 
@@ -129,7 +128,6 @@
         [window makeFirstResponder:view];
         
         [view reconfig];
-        [view reshape];
         view.needsDisplay = YES;
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowWillClose:) name:NSWindowWillCloseNotification object:window];
