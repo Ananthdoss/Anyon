@@ -11,9 +11,7 @@ using namespace Anyon;
 class Game : public Core::EventReceiver
 {
 public:
-    Game();
-    ~Game();
-    
+    void PrepareConfiguration(Configuration &config) final;
     void Initiaize() final;
     void Finalize() final;
     void Update(const double delta) final;

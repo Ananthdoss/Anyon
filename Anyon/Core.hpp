@@ -15,19 +15,33 @@ namespace Anyon
     
     struct Mouse
     {
-        int x;
-        int y;
-        int wheelDelta;
-        bool left;
-        bool right;
+        int x, y,
+        wheelDelta;
+        bool left, right;
         
         Mouse():
         x(0), y(0), wheelDelta(0), left(false), right(false) {}
     };
     
+    struct Configuration
+    {
+        unsigned width = -1; // half of native screen width
+        unsigned height = -1; // same as width
+        bool fullscreen = false;
+        bool vsync = true;
+        bool fsaa = true;
+        
+        friend std::ostream& operator << (std::ostream &stream, const Configuration &config)
+        {
+            stream << config.width << "x" << config.height << (config.fullscreen ? " fullscreen" : " ") << (config.vsync ? " vsync" : " ") <<  (config.fsaa ? " fsaa" : " ");
+            return stream;
+        }
+    };
+    
     class Core : private PlatformWrapper
     {
     public:
+        
         class EventReceiver
         {
             friend class Core;
@@ -36,6 +50,7 @@ namespace Anyon
             virtual void Initiaize() = 0;
             virtual void Finalize() = 0;
             virtual void Update(const double delta) = 0;
+            virtual void PrepareConfiguration(Configuration &config) {};
             virtual void Activate() {};
             virtual void Deactivate() {};
             virtual void Resize(unsigned width, unsigned height) {};
@@ -55,27 +70,12 @@ namespace Anyon
             class Core *core;
         };
         
-        struct Configuration
-        {
-            unsigned width = -1;
-            unsigned height = -1;
-            bool fullscreen = false;
-            bool vsync = true;
-            bool fsaa = true;
-            
-            friend std::ostream& operator << (std::ostream &stream, const Configuration &config)
-            {
-                stream << config.width << "x" << config.height << (config.fullscreen ? " fullscreen" : " ") << (config.vsync ? " vsync" : " ") <<  (config.fsaa ? " fsaa" : " ");
-                return stream;
-            }
-        };
-        
-        static Configuration config;
         static Core* Start(EventReceiver *main);
         
         void Stop();
         bool Pause = false;
-        void Reconfigure();
+        Configuration CurrentConfiguration() const;
+        void Reconfigure(Configuration config);
         unsigned Fps() const;
         void FatalError(const std::string &message);
         void AddEventListner(EventReceiver *listener);
@@ -97,6 +97,7 @@ namespace Anyon
         Core& operator = (Core &&) = delete;
         
     private:
+        Configuration config;
         EventReceiver *mainAppReceiver = nullptr;
         std::vector<EventReceiver*> listeners;
         
@@ -117,6 +118,7 @@ namespace Anyon
         Core(EventReceiver *main);
         ~Core(){};
         
+        Configuration& GetConfiguration() final;
         void Initialize() final;
         void Finalize() final;
         bool MainLoop() final;

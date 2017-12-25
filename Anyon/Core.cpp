@@ -12,13 +12,12 @@ Core* Core::EventReceiver::Core() const
     return core;
 }
 
-Core::Configuration Core::config;
-
 Core::Core(EventReceiver *main):
 mainAppReceiver(main)
 {
     memset(&keys, 0, 256);
     mainAppReceiver->core = this;
+    mainAppReceiver->PrepareConfiguration(config);
 }
 
 class ResourceManager* Core::ResourceManager()
@@ -29,6 +28,11 @@ class ResourceManager* Core::ResourceManager()
 Renderer* Core::Renderer()
 {
     return &renderer;
+}
+
+Configuration& Core::GetConfiguration()
+{
+    return config;
 }
 
 void Core::Initialize()
@@ -204,8 +208,18 @@ void Core::Stop()
     stopFlag = true;
 }
 
-void Core::Reconfigure()
+Configuration Core::CurrentConfiguration() const
 {
+    return config;
+}
+
+void Core::Reconfigure(Configuration config)
+{
+    mainAppReceiver->PrepareConfiguration(config);
+    for (auto l : listeners)
+        l->PrepareConfiguration(config);
+    
+    this->config = config;
     ReconfigureWindow();
 }
 

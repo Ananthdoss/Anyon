@@ -13,6 +13,7 @@ namespace Anyon
 #ifdef ANYON_APPLE
         void SetInterlayerInstanceId(/*CoreInterlayer*/void *id);
 #endif
+        virtual struct Configuration& GetConfiguration() = 0;
         virtual void Initialize() = 0;
         virtual void Finalize() = 0;
         virtual bool MainLoop() = 0;

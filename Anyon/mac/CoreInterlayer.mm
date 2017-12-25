@@ -25,42 +25,42 @@ using namespace Anyon;
 
 - (unsigned) configWidth;
 {
-    return Core::config.width;
+    return ((PlatformWrapper *)wrapper)->GetConfiguration().width;
 }
 
 - (void) setConfigWidth:(unsigned) width
 {
-    Core::config.width = width;
+    ((PlatformWrapper *)wrapper)->GetConfiguration().width = width;
 }
 
 - (unsigned) configHeight
 {
-    return Core::config.height;
+    return ((PlatformWrapper *)wrapper)->GetConfiguration().height;
 }
 
 - (void) setConfigHeight:(unsigned) height
 {
-    Core::config.height = height;
+    ((PlatformWrapper *)wrapper)->GetConfiguration().height = height;
 }
 
 - (bool) configFullscreen
 {
-    return Core::config.fullscreen;
+    return ((PlatformWrapper *)wrapper)->GetConfiguration().fullscreen;
 }
 
 - (bool) configVsync
 {
-    return Core::config.vsync;
+    return ((PlatformWrapper *)wrapper)->GetConfiguration().vsync;
 }
 
 - (bool) configFsaa
 {
-    return Core::config.fsaa;
+    return ((PlatformWrapper *)wrapper)->GetConfiguration().fsaa;
 }
 
 - (void) setConfigFsaa:(bool) fsaa
 {
-    Core::config.fsaa = fsaa;
+    ((PlatformWrapper *)wrapper)->GetConfiguration().fsaa = fsaa;
 }
 
 - (void) initialize
