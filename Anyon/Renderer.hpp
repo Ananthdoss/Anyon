@@ -65,7 +65,7 @@ namespace Anyon
         ~Renderer() {};
         Renderer() {};
         
-        Color colorClear = colorNone;
+        Color colorClear = Color::None();
         unsigned drawCalls, trianglesRendered;
         class Shader *currentShader = nullptr;
         
