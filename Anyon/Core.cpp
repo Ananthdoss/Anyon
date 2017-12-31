@@ -25,6 +25,11 @@ class ResourceManager* Core::ResourceManager()
     return &resMan;
 }
 
+class MemoryManager* Core::MemoryManager()
+{
+    return &memMan;
+}
+
 Renderer* Core::Renderer()
 {
     return &renderer;

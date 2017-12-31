@@ -13,15 +13,14 @@ void Game::PrepareConfiguration(Configuration &config)
 
 void Game::Initiaize()
 {
-    shader = new Shader("shader_unlit", {false}, Core()->ResourceManager());
-    mesh = new Mesh("mesh_quad", Mesh::CommonShapes::Quad, Core()->ResourceManager());
-    Core()->BeginTextInput();
+    shader = Core()->MemoryManager()->New<class Shader, const std::string&, struct Shader::Properties, ResourceManager*>("shader_unlit", {false}, Core()->ResourceManager());
+    mesh = Core()->MemoryManager()->New<class Mesh, const std::string&, Mesh::CommonShapes, ResourceManager*>("mesh_quad", Mesh::CommonShapes::Quad, Core()->ResourceManager());
 }
 
 void Game::Finalize()
 {
-    delete shader;
-    delete mesh;
+    Core()->MemoryManager()->Delete(shader);
+    Core()->MemoryManager()->Delete(mesh);
 }
 
 void Game::Update(const double delta)

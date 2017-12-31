@@ -6,6 +6,7 @@
 #include "PlatformWrapper.hpp"
 #include "Renderer.hpp"
 #include "ResourceManager.hpp"
+#include "MemoryManager.hpp"
 
 namespace Anyon
 {
@@ -90,8 +91,9 @@ namespace Anyon
         void ShowCursor(bool visible);
         
         class ResourceManager* ResourceManager();
+        class MemoryManager* MemoryManager();
         class Renderer* Renderer();
-
+        
         Core(Core const &) = delete;
         Core& operator = (Core const &) = delete;
         Core& operator = (Core &&) = delete;
@@ -103,6 +105,7 @@ namespace Anyon
         
         class Renderer renderer;
         class ResourceManager resMan;
+        class MemoryManager memMan;
         
         bool stopFlag = false;
         bool keys[256];
