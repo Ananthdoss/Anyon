@@ -2,7 +2,7 @@
 #import "AppDelegate.h"
 
 #define MSAA_BUFFERS 4
-//#define REQUIRE_ACCELERATION
+#define REQUIRE_ACCELERATION
 
 @implementation OpenGLView
 

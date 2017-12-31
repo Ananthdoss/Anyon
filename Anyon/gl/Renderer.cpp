@@ -23,6 +23,10 @@ void Renderer::ResizeViewport(unsigned width, unsigned height)
 
 void Renderer::SetDefaultStates()
 {
+    // Research if this is necessary and could it slow working with textures?
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     
@@ -33,8 +37,10 @@ void Renderer::SetDefaultStates()
     currentProgram = 0;
     glUseProgram(0);
     
-    //glActiveTexture(GL_TEXTURE0);
-    //glEnable(GL_TEXTURE_2D);
+    glActiveTexture(GL_TEXTURE0);
+    glEnable(GL_TEXTURE_2D);
+    currentTextures[(unsigned)TextureLayer::Diffuse] = 0;
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Renderer::Clear(bool color, bool depth, bool stencil)
@@ -58,7 +64,7 @@ void Renderer::Render(Renderable *rend)
     
     assert(currentShader == nullptr || currentShader->CompatibleWith(rend->VertexAttributes())); // Current shader is incompatible with given geometry!
     
-    // In future need to test here if texture is assigned for shader that wants it.
+    assert(currentShader == nullptr || currentShader->Properties().diffuseTexture == currentTextures[(unsigned)TextureLayer::Diffuse] != 0); // Texture must be set for this shader!
     
     rend->InstantRender();
     
@@ -87,6 +93,19 @@ void Renderer::Bind(RenderObject *obj)
             {
                 currentVao = o;
                 glBindVertexArray(o);
+            }
+            break;
+            
+        case RenderObject::ObjectType::Texture:
+            if (o != currentTextures[(unsigned)TextureLayer::Diffuse])
+            {
+                currentTextures[(unsigned)TextureLayer::Diffuse] = o;
+                
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, o);
+                
+                if (currentShader && currentShader->Properties().diffuseTexture)
+                    currentShader->Set(currentShader->Index(Shader::defaultNames[(unsigned)Shader::defaultNameIndex::diffuseTexture]), 0);
             }
             break;
     }

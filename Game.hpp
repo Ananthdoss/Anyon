@@ -5,6 +5,7 @@
 
 #include <Shader.hpp>
 #include <Mesh.hpp>
+#include <Texture.hpp>
 
 using namespace Anyon;
 
@@ -19,6 +20,7 @@ public:
 private:
     Shader *shader = nullptr;
     Mesh *mesh = nullptr;
+    Texture *texture = nullptr;
     float angle = 0.f;
 };
 

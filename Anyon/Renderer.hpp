@@ -22,6 +22,8 @@ namespace Anyon
             bool tangent;
         };
         
+        enum class TextureLayer { Diffuse, Count };
+        
         class Renderable
         {
             friend class Renderer;
@@ -41,7 +43,7 @@ namespace Anyon
             friend class Renderer;
             
         public:
-            enum class ObjectType { Shader, Mesh };
+            enum class ObjectType { Shader, Mesh, Texture };
             virtual ObjectType Type() const = 0;
             
         protected:
@@ -74,7 +76,7 @@ namespace Anyon
         void ResizeViewport(unsigned width, unsigned height);
         
 #ifdef ANYON_GL
-        GLuint currentVao, currentProgram;
+        GLuint currentVao, currentProgram, currentTextures[(unsigned)TextureLayer::Count];
 #endif
     };
 }
