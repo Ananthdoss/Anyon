@@ -23,7 +23,6 @@ void Renderer::ResizeViewport(unsigned width, unsigned height)
 
 void Renderer::SetDefaultStates()
 {
-    // Research if this is necessary and could it slow working with textures?
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
     
@@ -72,6 +71,15 @@ void Renderer::Render(Renderable *rend)
     trianglesRendered += rend->TrianglesCount();
 }
 
+void Renderer::SetCurrentShaderProperties()
+{
+    if (!currentShader)
+        return;
+    
+    if (currentShader->Properties().diffuseTexture)
+        currentShader->Set(currentShader->Index(Shader::defaultNames[(unsigned)Shader::defaultNameIndex::diffuseTexture]), 0);
+}
+
 void Renderer::Bind(RenderObject *obj)
 {
     const GLuint o = obj->Object();
@@ -81,9 +89,13 @@ void Renderer::Bind(RenderObject *obj)
             if (o != currentProgram)
             {
                 Shader *s = dynamic_cast<Shader*>(obj);
-                assert(s != NULL); // Object of type Shader must be of the same class!
+                assert(s != NULL); // Object of type Shader must be of the class Shader!
+                
                 currentShader = s;
                 currentProgram = o;
+                
+                SetCurrentShaderProperties();
+                
                 glUseProgram(o);
             }
             break;
@@ -104,8 +116,7 @@ void Renderer::Bind(RenderObject *obj)
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, o);
                 
-                if (currentShader && currentShader->Properties().diffuseTexture)
-                    currentShader->Set(currentShader->Index(Shader::defaultNames[(unsigned)Shader::defaultNameIndex::diffuseTexture]), 0);
+                SetCurrentShaderProperties();
             }
             break;
     }

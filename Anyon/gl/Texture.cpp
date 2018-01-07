@@ -7,6 +7,7 @@ bool Texture::Valid() const
 {
     return texture != 0;
 }
+
 Renderer::RenderObject::ObjectType Texture::Type() const
 {
     return Renderer::RenderObject::ObjectType::Texture;

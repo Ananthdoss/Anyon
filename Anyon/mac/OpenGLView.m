@@ -2,7 +2,9 @@
 #import "AppDelegate.h"
 
 #define MSAA_BUFFERS 4
+//#define TRIPLE_BUFFERING
 #define REQUIRE_ACCELERATION
+#define RETINA_RESOLUTION
 
 @implementation OpenGLView
 
@@ -73,8 +75,14 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
         {
 #ifdef REQUIRE_ACCELERATION
             NSOpenGLPFAAccelerated,
+#else
+            NSOpenGLPFAAllRenderers,
 #endif
+#ifdef TRIPLE_BUFFERING
             NSOpenGLPFATripleBuffer,
+#else
+            NSOpenGLPFADoubleBuffer,
+#endif
             NSOpenGLPFAColorSize, 24,
             NSOpenGLPFAAlphaSize, 8,
             NSOpenGLPFADepthSize, 24,
@@ -92,12 +100,21 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
         if (!pixelFormat)
             [self->core fatalAlert:@"No suitable OpenGL 4.1 pixel format found!"];
         
-        self->context = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
-    
+        context = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
+        
         [context makeCurrentContext];
         
+#ifdef RETINA_RESOLUTION
+        [self setWantsBestResolutionOpenGLSurface:YES];
+#endif
+        
+#ifdef ANYON_DEBUG
+        // Will crash on any legacy OpenGL call.
+        CGLEnable([context CGLContextObj], kCGLCECrashOnRemovedFunctions);
+#endif
+        
         const GLint swap = core.configVsync ? 1 : 0;
-        [context setValues:&swap forParameter:NSOpenGLCPSwapInterval];
+        CGLSetParameter([context CGLContextObj], kCGLCPSwapInterval, &swap);
         
         [self setupDisplayLink];
         
@@ -143,31 +160,38 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
     
     NSRect bounds = [self bounds];
     
-    if (bounds.size.width != core.configWidth || bounds.size.height != core.configHeight)
+#ifdef RETINA_RESOLUTION
+    NSRect pixels = [self convertRectToBacking:bounds];
+#else
+    NSRect pixels = bounds;
+#endif
+    
+    if (core.configFullscreen && (bounds.size.width != core.configWidth || bounds.size.height != core.configHeight))
     {
-        NSLog(@"Switching to non-native fullscreen resolution currently is not supported!");
-        core.configWidth = bounds.size.width;
-        core.configHeight = bounds.size.height;
+#ifdef RETINA_RESOLUTION
+        [self setWantsBestResolutionOpenGLSurface:NO];
+#endif
+        const GLint dim[2] = {core.configWidth, core.configHeight};
+        CGLSetParameter([context CGLContextObj], kCGLCPSurfaceBackingSize, &dim[0]);
+        CGLEnable([context CGLContextObj], kCGLCESurfaceBackingSize);
         
-        // Issue: For some reason this code doesn't work!
-        /*const GLint dim[2] = {core.configWidth, core.configHeight };
-        CGLSetParameter([context CGLContextObj], kCGLCPSurfaceBackingSize, dim);
-        CGLEnable([context CGLContextObj], kCGLCESurfaceBackingSize);*/
-        
-        //bounds.size.width = core.configWidth;
-        //bounds.size.height = core.configHeight;
-        [core resize:bounds];
+        bounds.size.width = core.configWidth;
+        bounds.size.height = core.configHeight;
     }
     else
     {
+#ifdef RETINA_RESOLUTION
+        [self setWantsBestResolutionOpenGLSurface:YES];
+#endif
         CGLDisable([context CGLContextObj], kCGLCESurfaceBackingSize);
-        [core resize:bounds];
+        core.configWidth = pixels.size.width;
+        core.configHeight = pixels.size.height;
     }
     
+    [core resize:bounds];
     [context update];
     
     CGLUnlockContext([context CGLContextObj]);
-
 }
 
 - (void) renewGState
@@ -184,17 +208,16 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 
 - (void) drawView
 {
-    CGLLockContext([context CGLContextObj]);
-    
     [context makeCurrentContext];
+    
+    CGLLockContext([context CGLContextObj]);
     
     if (![core mainLoop])
         dispatch_async(dispatch_get_main_queue(), ^{
             [window close];
         });
     
-    [context flushBuffer];
-    
+    CGLFlushDrawable([context CGLContextObj]);
     CGLUnlockContext([context CGLContextObj]);
 }
 

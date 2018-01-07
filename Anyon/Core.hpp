@@ -34,7 +34,7 @@ namespace Anyon
         
         friend std::ostream& operator << (std::ostream &stream, const Configuration &config)
         {
-            stream << config.width << "x" << config.height << (config.fullscreen ? " fullscreen" : " ") << (config.vsync ? " vsync" : " ") <<  (config.fsaa ? " fsaa" : " ");
+            stream << config.width << "x" << config.height << (config.fullscreen ? " fullscreen" : "") << (config.vsync ? " vsync" : "") <<  (config.fsaa ? " fsaa" : "");
             return stream;
         }
     };

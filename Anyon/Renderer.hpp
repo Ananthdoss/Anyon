@@ -71,6 +71,8 @@ namespace Anyon
         unsigned drawCalls, trianglesRendered;
         class Shader *currentShader = nullptr;
         
+        void SetCurrentShaderProperties();
+        
         void PrepareFrame();
         void CompleteFrame();
         void ResizeViewport(unsigned width, unsigned height);
